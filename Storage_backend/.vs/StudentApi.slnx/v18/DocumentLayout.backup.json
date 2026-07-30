@@ -1,0 +1,367 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|c:\\users\\nizar\\desktop\\storage_backend\\services\\boxservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|solutionrelative:services\\boxservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|c:\\users\\nizar\\desktop\\storage_backend\\services\\storagecalculationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|solutionrelative:services\\storagecalculationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|c:\\users\\nizar\\desktop\\storage_backend\\services\\shelfservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|solutionrelative:services\\shelfservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|c:\\users\\nizar\\desktop\\storage_backend\\services\\istoragecalculationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|solutionrelative:services\\istoragecalculationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|c:\\users\\nizar\\desktop\\storage_backend\\models\\entities\\monthlypartdatum.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|solutionrelative:models\\entities\\monthlypartdatum.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|c:\\users\\nizar\\desktop\\storage_backend\\models\\entities\\box.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|solutionrelative:models\\entities\\box.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|c:\\users\\nizar\\desktop\\storage_backend\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|c:\\users\\nizar\\desktop\\storage_backend\\dtos\\storagecalculationdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|solutionrelative:dtos\\storagecalculationdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|c:\\users\\nizar\\desktop\\storage_backend\\dtos\\createshelfdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|solutionrelative:dtos\\createshelfdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|c:\\users\\nizar\\desktop\\storage_backend\\dtos\\createboxdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|solutionrelative:dtos\\createboxdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|c:\\users\\nizar\\desktop\\storage_backend\\data\\storagedbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|solutionrelative:data\\storagedbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|c:\\users\\nizar\\desktop\\storage_backend\\controllers\\storagecalculationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|solutionrelative:controllers\\storagecalculationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|c:\\users\\nizar\\desktop\\storage_backend\\controllers\\boxescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|solutionrelative:controllers\\boxescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|c:\\users\\nizar\\desktop\\storage_backend\\controllers\\shelvescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|solutionrelative:controllers\\shelvescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|c:\\users\\nizar\\desktop\\storage_backend\\studentapi.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
+      "RelativeMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|solutionrelative:studentapi.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|c:\\users\\nizar\\desktop\\storage_backend\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|c:\\users\\nizar\\desktop\\storage_backend\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{8D14652B-E403-0644-5C1C-139401D8A146}|StudentApi.csproj|solutionrelative:properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Nizar\\Desktop\\StudentApi\\Controllers\\StudentController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Nizar\\Desktop\\StudentApi\\Services\\IStudentService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Nizar\\Desktop\\StudentApi\\DTOs\\UpdateStudentDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Nizar\\Desktop\\StudentApi\\Services\\StudentService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEMAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-06T09:07:07.465Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Box.cs",
+              "DocumentMoniker": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Models\\Entities\\Box.cs",
+              "RelativeDocumentMoniker": "Models\\Entities\\Box.cs",
+              "ToolTip": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Models\\Entities\\Box.cs",
+              "RelativeToolTip": "Models\\Entities\\Box.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-13T09:24:19.91Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "BoxService.cs",
+              "DocumentMoniker": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Services\\BoxService.cs",
+              "RelativeDocumentMoniker": "Services\\BoxService.cs",
+              "ToolTip": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Services\\BoxService.cs",
+              "RelativeToolTip": "Services\\BoxService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAD8AAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-13T10:11:22.895Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "StorageCalculationDto.cs",
+              "DocumentMoniker": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\DTOs\\StorageCalculationDto.cs",
+              "RelativeDocumentMoniker": "DTOs\\StorageCalculationDto.cs",
+              "ToolTip": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\DTOs\\StorageCalculationDto.cs",
+              "RelativeToolTip": "DTOs\\StorageCalculationDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACoAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-13T10:13:19.692Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "IStorageCalculationService.cs",
+              "DocumentMoniker": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Services\\IStorageCalculationService.cs",
+              "RelativeDocumentMoniker": "Services\\IStorageCalculationService.cs",
+              "ToolTip": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Services\\IStorageCalculationService.cs",
+              "RelativeToolTip": "Services\\IStorageCalculationService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-13T10:14:50.118Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ShelfService.cs",
+              "DocumentMoniker": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Services\\ShelfService.cs",
+              "RelativeDocumentMoniker": "Services\\ShelfService.cs",
+              "ToolTip": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Services\\ShelfService.cs",
+              "RelativeToolTip": "Services\\ShelfService.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAQwB4AAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-13T10:12:16.577Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "StorageCalculationService.cs",
+              "DocumentMoniker": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Services\\StorageCalculationService.cs",
+              "RelativeDocumentMoniker": "Services\\StorageCalculationService.cs",
+              "ToolTip": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Services\\StorageCalculationService.cs",
+              "RelativeToolTip": "Services\\StorageCalculationService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-13T10:15:40.9Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "CreateShelfDto.cs",
+              "DocumentMoniker": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\DTOs\\CreateShelfDto.cs",
+              "RelativeDocumentMoniker": "DTOs\\CreateShelfDto.cs",
+              "ToolTip": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\DTOs\\CreateShelfDto.cs",
+              "RelativeToolTip": "DTOs\\CreateShelfDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-13T09:09:17.577Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "CreateBoxDto.cs",
+              "DocumentMoniker": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\DTOs\\CreateBoxDto.cs",
+              "RelativeDocumentMoniker": "DTOs\\CreateBoxDto.cs",
+              "ToolTip": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\DTOs\\CreateBoxDto.cs",
+              "RelativeToolTip": "DTOs\\CreateBoxDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-13T09:09:16.434Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "StorageDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Data\\StorageDbContext.cs",
+              "RelativeDocumentMoniker": "Data\\StorageDbContext.cs",
+              "ToolTip": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Data\\StorageDbContext.cs",
+              "RelativeToolTip": "Data\\StorageDbContext.cs",
+              "ViewState": "AgIAABIAAAAAAAAAAAAYwGIAAAAiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-13T08:58:15.875Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "StorageCalculationController.cs",
+              "DocumentMoniker": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Controllers\\StorageCalculationController.cs",
+              "RelativeDocumentMoniker": "Controllers\\StorageCalculationController.cs",
+              "ToolTip": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Controllers\\StorageCalculationController.cs",
+              "RelativeToolTip": "Controllers\\StorageCalculationController.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABcAAAA+AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-13T10:16:33.884Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "MonthlyPartDatum.cs",
+              "DocumentMoniker": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Models\\Entities\\MonthlyPartDatum.cs",
+              "RelativeDocumentMoniker": "Models\\Entities\\MonthlyPartDatum.cs",
+              "ToolTip": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Models\\Entities\\MonthlyPartDatum.cs",
+              "RelativeToolTip": "Models\\Entities\\MonthlyPartDatum.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-13T09:24:20.808Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "BoxesController.cs",
+              "DocumentMoniker": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Controllers\\BoxesController.cs",
+              "RelativeDocumentMoniker": "Controllers\\BoxesController.cs",
+              "ToolTip": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Controllers\\BoxesController.cs",
+              "RelativeToolTip": "Controllers\\BoxesController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACMAAAA7AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-13T11:24:47.993Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "ShelvesController.cs",
+              "DocumentMoniker": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Controllers\\ShelvesController.cs",
+              "RelativeDocumentMoniker": "Controllers\\ShelvesController.cs",
+              "ToolTip": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Controllers\\ShelvesController.cs",
+              "RelativeToolTip": "Controllers\\ShelvesController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-13T09:24:08.509Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "StudentApi",
+              "DocumentMoniker": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\StudentApi.csproj",
+              "RelativeDocumentMoniker": "StudentApi.csproj",
+              "ToolTip": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\StudentApi.csproj",
+              "RelativeToolTip": "StudentApi.csproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-07-13T11:24:42.599Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\appsettings.json",
+              "RelativeDocumentMoniker": "appsettings.json",
+              "ToolTip": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\appsettings.json",
+              "RelativeToolTip": "appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-07-13T08:55:23.579Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "launchSettings.json",
+              "DocumentMoniker": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Properties\\launchSettings.json",
+              "RelativeDocumentMoniker": "Properties\\launchSettings.json",
+              "ToolTip": "C:\\Users\\Nizar\\Desktop\\Storage_backend\\Properties\\launchSettings.json",
+              "RelativeToolTip": "Properties\\launchSettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-07-13T09:09:08.444Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "StudentController.cs",
+              "DocumentMoniker": "C:\\Users\\Nizar\\Desktop\\StudentApi\\Controllers\\StudentController.cs",
+              "RelativeDocumentMoniker": "..\\StudentApi\\Controllers\\StudentController.cs",
+              "ToolTip": "C:\\Users\\Nizar\\Desktop\\StudentApi\\Controllers\\StudentController.cs",
+              "RelativeToolTip": "..\\StudentApi\\Controllers\\StudentController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEgAAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-06T11:40:54.541Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "IStudentService.cs",
+              "DocumentMoniker": "C:\\Users\\Nizar\\Desktop\\StudentApi\\Services\\IStudentService.cs",
+              "RelativeDocumentMoniker": "..\\StudentApi\\Services\\IStudentService.cs",
+              "ToolTip": "C:\\Users\\Nizar\\Desktop\\StudentApi\\Services\\IStudentService.cs",
+              "RelativeToolTip": "..\\StudentApi\\Services\\IStudentService.cs",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAqwAcAAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-06T10:57:28.298Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "UpdateStudentDto.cs",
+              "DocumentMoniker": "C:\\Users\\Nizar\\Desktop\\StudentApi\\DTOs\\UpdateStudentDto.cs",
+              "RelativeDocumentMoniker": "..\\StudentApi\\DTOs\\UpdateStudentDto.cs",
+              "ToolTip": "C:\\Users\\Nizar\\Desktop\\StudentApi\\DTOs\\UpdateStudentDto.cs",
+              "RelativeToolTip": "..\\StudentApi\\DTOs\\UpdateStudentDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-06T13:23:27.584Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "StudentService.cs",
+              "DocumentMoniker": "C:\\Users\\Nizar\\Desktop\\StudentApi\\Services\\StudentService.cs",
+              "RelativeDocumentMoniker": "..\\StudentApi\\Services\\StudentService.cs",
+              "ToolTip": "C:\\Users\\Nizar\\Desktop\\StudentApi\\Services\\StudentService.cs",
+              "RelativeToolTip": "..\\StudentApi\\Services\\StudentService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-06T11:46:15.217Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

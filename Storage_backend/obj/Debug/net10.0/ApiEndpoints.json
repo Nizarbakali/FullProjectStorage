@@ -1,0 +1,96 @@
+[
+  {
+    "ContainingType": "StudentApi.Controllers.BoxesController",
+    "Method": "GetBoxes",
+    "RelativePath": "api/Boxes",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "StudentApi.Controllers.BoxesController",
+    "Method": "AddBox",
+    "RelativePath": "api/Boxes",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "StudentApi.DTOs.CreateBoxDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "StudentApi.Controllers.BoxesController",
+    "Method": "DeleteBox",
+    "RelativePath": "api/Boxes/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "StudentApi.Controllers.ShelvesController",
+    "Method": "GetShelves",
+    "RelativePath": "api/Shelves",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "StudentApi.Controllers.ShelvesController",
+    "Method": "AddShelf",
+    "RelativePath": "api/Shelves",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "StudentApi.DTOs.CreateShelfDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "StudentApi.Controllers.ShelvesController",
+    "Method": "DeleteShelf",
+    "RelativePath": "api/Shelves/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "StudentApi.Controllers.StorageCalculationController",
+    "Method": "Calculate",
+    "RelativePath": "api/StorageCalculation",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  }
+]

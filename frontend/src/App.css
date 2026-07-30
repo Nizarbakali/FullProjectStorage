@@ -1,0 +1,75 @@
+/* ── App shell ────────────────────────────────────────────────────── */
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: background-image 0.5s ease-in-out;
+}
+
+/* ── Top navigation bar ───────────────────────────────────────────── */
+.app-nav {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 0 2rem;
+  height: 60px;
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.app-nav__brand {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+  background: linear-gradient(135deg, var(--primary), #fb7185);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.3px;
+  flex-shrink: 0;
+}
+
+.app-nav__tabs {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.app-nav__tab {
+  padding: 0.4rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  font-family: inherit;
+}
+
+.app-nav__tab:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+.app-nav__tab--active {
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+  color: #fff;
+  box-shadow: 0 4px 12px var(--primary-light);
+}
+
+/* ── Page content area ────────────────────────────────────────────── */
+.app-main {
+  flex: 1;
+  padding: 0;
+  animation: fadeSlideUp 0.4s ease-out forwards;
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
