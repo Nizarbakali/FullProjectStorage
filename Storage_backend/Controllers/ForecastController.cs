@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StudentApi.DTOs;
 using StudentApi.Services;
@@ -11,6 +12,7 @@ public class ForecastController : ControllerBase
     private readonly IForecastService _forecastService;
     public ForecastController(IForecastService forecastService) => _forecastService = forecastService;
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Predict(ForecastRequestDto request)
     {

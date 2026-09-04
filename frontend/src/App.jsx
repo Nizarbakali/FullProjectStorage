@@ -1,228 +1,124 @@
 import { useEffect, useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
 
-import MagasinPage from "./pages/MagasinPage"
-import RayonPage from "./pages/RayonPage"
-import ZonePage from "./pages/ZonePage"
-import CasePage from "./pages/CasePage"
-import HeatmapPage from "./pages/HeatmapPage"
-import ArticlePage from "./pages/ArticlePage"
-import CsvUploadPage from "./pages/CsvUploadPage"
-import ChartsPage from "./pages/ChartsPage"
-import MapPage from "./pages/MapPage"
+import { setActivePage } from "./store/navigationSlice"
+import { logout } from "./store/authSlice"
+
+import LoginPage          from "./pages/LoginPage"
+import MagasinPage        from "./pages/MagasinPage"
+import RayonPage          from "./pages/RayonPage"
+import ZonePage           from "./pages/ZonePage"
+import CasePage           from "./pages/CasePage"
+import HeatmapPage        from "./pages/HeatmapPage"
+import ArticlePage        from "./pages/ArticlePage"
+import CsvUploadPage      from "./pages/CsvUploadPage"
+import ChartsPage         from "./pages/ChartsPage"
+import MapPage            from "./pages/MapPage"
+import UserManagementPage from "./pages/UserManagementPage"
 
 import "./App.css"
 
-const TABS = [
-  {
-    id: "donnees",
-    label: "Données Mensuelles",
-  },
-  {
-    id: "magasins",
-    label: "Magasins",
-  },
-  {
-    id: "rayons",
-    label: "Rayons",
-  },
-  {
-    id: "zones",
-    label: "Zones",
-  },
-  {
-    id: "cases",
-    label: "Cases",
-  },
-  {
-    id: "heatmap",
-    label: "Heatmap",
-  },
-  {
-    id: "articles",
-    label: "Articles",
-  },
-  {
-    id: "graphiques",
-    label: "Graphiques",
-  },
-  {
-    id: "carte",
-    label: "Carte",
-  },
+// ── Tab definitions ───────────────────────────────────────────────────────────
+const ADMIN_TABS = [
+  { id: "donnees",       label: "Données Mensuelles" },
+  { id: "magasins",      label: "Magasins"           },
+  { id: "rayons",        label: "Rayons"              },
+  { id: "zones",         label: "Zones"               },
+  { id: "cases",         label: "Cases"               },
+  { id: "articles",      label: "Articles"            },
+    { id: "heatmap",       label: "Heatmap"             },
+  { id: "graphiques",    label: "Graphiques"          },
+  { id: "carte",         label: "Carte"               },
+  { id: "utilisateurs",  label: "Utilisateurs"     },
+]
+
+// User role: read-only visualisation tabs only
+const USER_TABS = [
+  { id: "heatmap",    label: "Heatmap"    },
+  { id: "graphiques", label: "Graphiques" },
+  { id: "carte",      label: "Carte"      },
 ]
 
 function App() {
-  const [activeTab, setActiveTab] =
-    useState("donnees")
+  const dispatch   = useDispatch()
+  const activePage = useSelector((state) => state.navigation.activePage)
+  const { isAuthenticated, username, role } = useSelector((state) => state.auth)
 
-  const [theme, setTheme] = useState(() => {
-    return (
-      localStorage.getItem("theme") ||
-      "dark"
-    )
-  })
+  const isAdmin = role === "admin"
+  const tabs    = isAdmin ? ADMIN_TABS : USER_TABS
+
+  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark")
 
   useEffect(() => {
-    document.documentElement.setAttribute(
-      "data-theme",
-      theme
-    )
-
-    localStorage.setItem(
-      "theme",
-      theme
-    )
+    document.documentElement.setAttribute("data-theme", theme)
+    localStorage.setItem("theme", theme)
   }, [theme])
 
-  function toggleTheme() {
-    setTheme((currentTheme) =>
-      currentTheme === "dark"
-        ? "light"
-        : "dark"
-    )
-  }
-
-  function getBackgroundImage() {
-    switch (activeTab) {
-      case "donnees":
-        return ""
-
-      case "magasins":
-        return ""
-
-      case "rayons":
-        return ""
-
-      case "zones":
-        return ""
-
-      case "cases":
-        return ""
-
-      case "heatmap":
-        return ""
-
-      case "articles":
-        return ""
-
-      case "graphiques":
-        return ""
-
-      case "carte":
-        return ""
-
-      default:
-        return ""
+  // When the role changes (e.g. after login), make sure the active page is valid
+  useEffect(() => {
+    const allowed = tabs.map(t => t.id)
+    if (!allowed.includes(activePage)) {
+      dispatch(setActivePage(tabs[0].id))
     }
-  }
+  }, [role]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const backgroundImage =
-    getBackgroundImage()
+  // ── Auth gate ───────────────────────────────────────────────────────────────
+  if (!isAuthenticated) return <LoginPage />
 
+  // ── Authenticated shell ─────────────────────────────────────────────────────
   return (
-    <div
-      className="app-shell"
-      style={{
-        backgroundImage: backgroundImage
-          ? `url("${backgroundImage}")`
-          : "none",
-
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundAttachment: "fixed",
-      }}
-    >
+    <div className="app-shell">
       <nav className="app-nav">
-        <span className="app-nav__brand">
-          GMD Metal Tanger
-        </span>
+        <span className="app-nav__brand">GMD Metal Tanger</span>
 
         <div className="app-nav__tabs">
-          {TABS.map((tab) => (
+          {tabs.map((tab) => (
             <button
               type="button"
               key={tab.id}
-              className={
-                `app-nav__tab ${
-                  activeTab === tab.id
-                    ? "app-nav__tab--active"
-                    : ""
-                }`
-              }
-              onClick={() =>
-                setActiveTab(tab.id)
-              }
+              className={`app-nav__tab ${activePage === tab.id ? "app-nav__tab--active" : ""}`}
+              onClick={() => dispatch(setActivePage(tab.id))}
             >
               {tab.label}
             </button>
           ))}
         </div>
 
-        <div
-          style={{
-            marginLeft: "auto",
-          }}
-        >
+        <div className="app-nav__right">
+          <span className={`nav-role-badge nav-role-badge--${role}`}>
+            {role === "admin" ? "" : ""} {username}
+          </span>
+
           <button
             type="button"
-            onClick={toggleTheme}
+            onClick={() => setTheme(t => t === "dark" ? "light" : "dark")}
             aria-label="Changer le thème"
-            style={{
-              background: "transparent",
-              border:
-                "1px solid var(--border)",
-              color: "var(--text)",
-              padding: "0.4rem 0.8rem",
-              borderRadius: "6px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-            }}
+            className="nav-icon-btn"
           >
-            {theme === "dark"
-              ? "☀️"
-              : "🌙"}
+            {theme === "dark" ? "☀️" : "🌙"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => dispatch(logout())}
+            className="nav-logout-btn"
+          >
+            Déconnexion
           </button>
         </div>
       </nav>
 
       <main className="app-main">
-        {activeTab === "donnees" && (
-          <CsvUploadPage />
-        )}
-
-        {activeTab === "magasins" && (
-          <MagasinPage />
-        )}
-
-        {activeTab === "rayons" && (
-          <RayonPage />
-        )}
-
-        {activeTab === "zones" && (
-          <ZonePage />
-        )}
-
-        {activeTab === "cases" && (
-          <CasePage />
-        )}
-
-        {activeTab === "heatmap" && (
-          <HeatmapPage />
-        )}
-
-        {activeTab === "articles" && (
-          <ArticlePage />
-        )}
-
-        {activeTab === "graphiques" && (
-          <ChartsPage />
-        )}
-
-        {activeTab === "carte" && (
-          <MapPage />
-        )}
+        {activePage === "donnees"      && <CsvUploadPage />}
+        {activePage === "magasins"     && <MagasinPage />}
+        {activePage === "rayons"       && <RayonPage />}
+        {activePage === "zones"        && <ZonePage />}
+        {activePage === "cases"        && <CasePage />}
+        {activePage === "heatmap"      && <HeatmapPage />}
+        {activePage === "articles"     && <ArticlePage />}
+        {activePage === "graphiques"   && <ChartsPage />}
+        {activePage === "carte"        && <MapPage />}
+        {activePage === "utilisateurs" && <UserManagementPage />}
       </main>
     </div>
   )

@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react"
+import { useSelector } from "react-redux"
 import { getRayons, getMagasins, createRayon, updateRayon, deleteRayon } from "../services/api"
+import Pagination from "../components/Pagination"
 import "./CrudPage.css"
 
 const EMPTY_FORM = { magasinId: "", codeRayon: "", nomRayon: "", actif: true }
 
 function RayonPage() {
+  const role = useSelector((state) => state.auth.role)
+  const isAdmin = role === "admin"
   const [rayons,   setRayons]   = useState([])
   const [magasins, setMagasins] = useState([])
   const [loading,  setLoading]  = useState(true)
@@ -14,6 +18,9 @@ function RayonPage() {
   const [saving,   setSaving]   = useState(false)
   const [editId,   setEditId]   = useState(null)
   const [form,     setForm]     = useState(EMPTY_FORM)
+
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
 
   async function load() {
     try {
@@ -85,6 +92,8 @@ function RayonPage() {
 
   if (loading && rayons.length === 0) return <div className="crud-loading">Chargement des rayons…</div>
 
+  const paginatedRayons = rayons.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+
   return (
     <div 
       className="crud-page"
@@ -101,9 +110,11 @@ function RayonPage() {
           <h1>Rayons</h1>
           <p className="crud-subtitle">{rayons.length} rayon{rayons.length !== 1 ? "s" : ""} dans le système</p>
         </div>
-        <button className="btn-primary" onClick={showForm ? cancelForm : openAdd}>
-          {showForm ? "✕  Annuler" : "+ Ajouter"}
-        </button>
+        {isAdmin && (
+          <button className="btn-primary" onClick={showForm ? cancelForm : openAdd}>
+            {showForm ? "✕  Annuler" : "+ Ajouter"}
+          </button>
+        )}
       </div>
 
       {error   && <div className="crud-banner crud-banner--error">{error}</div>}
@@ -158,7 +169,7 @@ function RayonPage() {
               </tr>
             </thead>
             <tbody style={{ opacity: loading ? 0.5 : 1 }}>
-              {rayons.map(r => (
+              {paginatedRayons.map(r => (
                 <tr key={r.rayonId}>
                   <td className="td-bold">{r.codeRayon}</td>
                   <td>{r.nomRayon || <span className="td-muted">—</span>}</td>
@@ -170,13 +181,23 @@ function RayonPage() {
                     </span>
                   </td>
                   <td className="td-actions">
-                    <button className="btn-edit" onClick={() => openEdit(r)}>Modifier</button>
-                    <button className="btn-delete" onClick={() => handleDelete(r.rayonId)}>Supprimer</button>
+                    {isAdmin && (
+                      <>
+                        <button className="btn-edit" onClick={() => openEdit(r)}>Modifier</button>
+                        <button className="btn-delete" onClick={() => handleDelete(r.rayonId)}>Supprimer</button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          <Pagination
+            currentPage={currentPage}
+            totalItems={rayons.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
         </div>
       )}
     </div>

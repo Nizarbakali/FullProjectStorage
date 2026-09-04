@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react"
+import { useSelector } from "react-redux"
 import {
   createArticle,
   deleteArticle,
   getArticles,
   getCases,
   updateArticle,
+  createMonthlyData,
 } from "../services/api"
+import Pagination from "../components/Pagination"
 import "./CrudPage.css"
 
 const EMPTY_FORM = {
@@ -14,9 +17,44 @@ const EMPTY_FORM = {
   caseIds: [],
   seuil: "",
   actif: true,
+  mois: "",
+  quantiteEntrer: "",
+  caseId: "",
+}
+
+function formatLocationString(locationStr) {
+  if (!locationStr) return locationStr;
+  const parts = locationStr.split(" | ");
+  if (parts.length <= 1) return locationStr;
+
+  const groups = {};
+  for (const part of parts) {
+    const lastArrowIndex = part.lastIndexOf(" > ");
+    if (lastArrowIndex !== -1) {
+      const prefix = part.substring(0, lastArrowIndex).trim();
+      const suffix = part.substring(lastArrowIndex + 3).trim();
+      if (!groups[prefix]) groups[prefix] = [];
+      groups[prefix].push(suffix);
+    } else {
+      if (!groups[""]) groups[""] = [];
+      groups[""].push(part.trim());
+    }
+  }
+
+  const result = [];
+  for (const prefix in groups) {
+    if (prefix) {
+      result.push(`${prefix} > ${groups[prefix].join("|")}`);
+    } else {
+      result.push(groups[prefix].join(" | "));
+    }
+  }
+  return result.join(" | ");
 }
 
 function ArticlePage() {
+  const role = useSelector((state) => state.auth.role)
+  const isAdmin = role === "admin"
   const [articles, setArticles] = useState([])
   const [cases, setCases] = useState([])
   const [loading, setLoading] = useState(true)
@@ -26,6 +64,9 @@ function ArticlePage() {
   const [showForm, setShowForm] = useState(false)
   const [editId, setEditId] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
+
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
 
   async function load() {
     try {
@@ -65,6 +106,9 @@ function ArticlePage() {
       caseIds: (article.caseIds ?? []).map(Number),
       seuil: article.seuil ?? "",
       actif: article.actif,
+      mois: "",
+      quantiteEntrer: "",
+      caseId: "",
     })
     setShowForm(true)
     setError("")
@@ -111,6 +155,30 @@ function ArticlePage() {
       return "Le seuil doit être supérieur ou égal à 0."
     }
 
+    if (form.caseIds.length === 0) {
+      return "Veuillez assigner au moins une Case à cet article."
+    }
+
+    // When creating a new article, the initial stock movement is mandatory
+    if (editId === null) {
+      if (!form.mois) return "Le mois du premier mouvement est obligatoire."
+      if (!form.quantiteEntrer || Number(form.quantiteEntrer) <= 0)
+        return "La quantité entrée du premier mouvement est obligatoire et doit être > 0."
+      if (!form.caseId)
+        return "Veuillez sélectionner la Case pour le premier mouvement."
+      if (!form.caseIds.includes(Number(form.caseId)))
+        return "La case du mouvement doit faire partie des cases assignées à l'article."
+    } else if (form.quantiteEntrer || form.mois || form.caseId) {
+      // During edit: if any movement field is filled, all must be filled
+      if (!form.mois) return "Le mois est obligatoire pour ajouter un mouvement."
+      if (!form.quantiteEntrer || Number(form.quantiteEntrer) <= 0)
+        return "La quantité entrée doit être > 0."
+      if (!form.caseId)
+        return "Veuillez sélectionner une Case pour ce mouvement."
+      if (!form.caseIds.includes(Number(form.caseId)))
+        return "La case du mouvement doit faire partie des cases assignées à l'article."
+    }
+
     return null
   }
 
@@ -135,12 +203,34 @@ function ArticlePage() {
       setSaving(true)
       setError("")
 
+      let articleId = editId;
+
       if (editId === null) {
-        await createArticle(dto)
+        const created = await createArticle(dto)
+        articleId = created.articleId
         setSuccess("Article créé avec succès.")
       } else {
         await updateArticle(editId, dto)
         setSuccess("Article modifié avec succès.")
+      }
+
+      if (form.quantiteEntrer && form.mois && form.caseId) {
+        const movementDto = {
+          articleId: Number(articleId),
+          caseId: Number(form.caseId),
+          mois: form.mois,
+          quantiteEntrer: Number(form.quantiteEntrer),
+          quantiteSortie: 0
+        }
+        try {
+          await createMonthlyData(movementDto)
+          setSuccess("Article et mouvement enregistrés avec succès.")
+        } catch (movErr) {
+          setError(`Article enregistré, mais échec du mouvement : ${movErr.message}`)
+          setSaving(false)
+          await load()
+          return
+        }
       }
 
       cancelForm()
@@ -175,6 +265,8 @@ function ArticlePage() {
     return <div className="crud-loading">Chargement des articles…</div>
   }
 
+  const paginatedArticles = articles.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+
   return (
     <div className="crud-page">
       <div className="crud-header">
@@ -184,12 +276,14 @@ function ArticlePage() {
             {articles.length} article{articles.length !== 1 ? "s" : ""} dans le système
           </p>
         </div>
-        <button
-          className="btn-primary"
-          onClick={showForm ? cancelForm : openAdd}
-        >
-          {showForm ? "✕ Annuler" : "+ Ajouter"}
-        </button>
+        {isAdmin && (
+          <button
+            className="btn-primary"
+            onClick={showForm ? cancelForm : openAdd}
+          >
+            {showForm ? "✕ Annuler" : "+ Ajouter"}
+          </button>
+        )}
       </div>
 
       {error && <div className="crud-banner crud-banner--error">{error}</div>}
@@ -268,9 +362,64 @@ function ArticlePage() {
             </div>
           </div>
 
+          <hr style={{ margin: "2rem 0", borderColor: "var(--border)", opacity: 0.5 }} />
+
+          <h4 className="form-title" style={{ fontSize: "1.1rem", marginBottom: "0.5rem" }}>
+            {editId === null
+              ? <>Сtock initial <span className="required">*</span></>
+              : "Ajouter un mouvement (optionnel)"}
+          </h4>
+          <p className="form-note" style={{ marginTop: 0, marginBottom: "1.5rem" }}>
+            {editId === null
+              ? "Tout article doit avoir un premier mouvement (entrée de stock). Ces données seront enregistrées dans Données Mensuelles."
+              : "Renseignez les 3 champs pour ajouter un nouveau mouvement dans Données Mensuelles."}
+          </p>
+
+          <div className="form-grid">
+            <label className="form-field">
+              <span>Mois{editId === null && <span className="required"> *</span>}</span>
+              <input
+                type="month"
+                value={form.mois}
+                onChange={field("mois")}
+                required={editId === null}
+              />
+            </label>
+
+            <label className="form-field">
+              <span>Quantité Entrée{editId === null && <span className="required"> *</span>}</span>
+              <input
+                type="number"
+                min="1"
+                placeholder="ex: 100"
+                value={form.quantiteEntrer}
+                onChange={field("quantiteEntrer")}
+                required={editId === null}
+              />
+            </label>
+
+            <label className="form-field">
+              <span>Case d'affectation{editId === null && <span className="required"> *</span>}</span>
+              <select value={form.caseId} onChange={field("caseId")} required={editId === null}>
+                <option value="">— Sélectionner une Case —</option>
+                {form.caseIds.length === 0 ? (
+                  <option disabled>Assignéz d'abord une Case ci-dessus</option>
+                ) : (
+                  form.caseIds.map(id => {
+                    const c = cases.find(x => Number(x.caseId) === id)
+                    return c ? (
+                      <option key={id} value={id}>
+                        {c.codeCase} — {c.fullLocation}
+                      </option>
+                    ) : null
+                  })
+                )}
+              </select>
+            </label>
+          </div>
+
           <p className="form-note">
-            Les quantités ne sont pas modifiées ici. Utilisez Données Mensuelles pour créer,
-            modifier ou supprimer les mouvements d'une Case précise.
+            Pour voir ou modifier tous les mouvements historiques, rendez-vous dans Données Mensuelles.
           </p>
 
           <div className="form-actions">
@@ -305,7 +454,7 @@ function ArticlePage() {
               </tr>
             </thead>
             <tbody style={{ opacity: loading ? 0.5 : 1 }}>
-              {articles.map(article => {
+              {paginatedArticles.map(article => {
                 const net = article.stockNet ?? 0
                 const capacity = article.totalCaseCapacity ?? 0
                 const threshold = article.seuil
@@ -335,7 +484,7 @@ function ArticlePage() {
                           <span className="stock-bar-cap">/ {capacity}</span>
                           {belowThreshold && (
                             <span className="inline-warning" title={`Seuil : ${threshold}`}>
-                              ⚠ &lt;{threshold}
+                              &lt;{threshold}
                             </span>
                           )}
                           {overCapacity && (
@@ -354,7 +503,7 @@ function ArticlePage() {
                     </td>
                     <td>{article.codeCase || <span className="td-muted">—</span>}</td>
                     <td className="location-cell">
-                      {article.fullLocation || <span className="td-muted">—</span>}
+                      {formatLocationString(article.fullLocation) || <span className="td-muted">—</span>}
                     </td>
                     <td>
                       <span className={`badge badge--${article.actif ? "green" : "red"}`}>
@@ -362,21 +511,31 @@ function ArticlePage() {
                       </span>
                     </td>
                     <td className="td-actions">
-                      <button className="btn-edit" onClick={() => openEdit(article)}>
-                        Modifier
-                      </button>
-                      <button
-                        className="btn-delete"
-                        onClick={() => handleDelete(article.articleId)}
-                      >
-                        Supprimer
-                      </button>
+                      {isAdmin && (
+                        <>
+                          <button className="btn-edit" onClick={() => openEdit(article)}>
+                            Modifier
+                          </button>
+                          <button
+                            className="btn-delete"
+                            onClick={() => handleDelete(article.articleId)}
+                          >
+                            Supprimer
+                          </button>
+                        </>
+                      )}
                     </td>
                   </tr>
                 )
               })}
             </tbody>
           </table>
+          <Pagination
+            currentPage={currentPage}
+            totalItems={articles.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
         </div>
       )}
     </div>

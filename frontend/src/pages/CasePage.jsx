@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useSelector } from "react-redux"
 import {
   createCase,
   deleteCase,
@@ -6,6 +7,7 @@ import {
   getZones,
   updateCase,
 } from "../services/api"
+import Pagination from "../components/Pagination"
 import "./CrudPage.css"
 
 const EMPTY_FORM = {
@@ -16,6 +18,8 @@ const EMPTY_FORM = {
 }
 
 function CasePage() {
+  const role = useSelector((state) => state.auth.role)
+  const isAdmin = role === "admin"
   const [cases, setCases] = useState([])
   const [zones, setZones] = useState([])
   const [loading, setLoading] = useState(true)
@@ -25,6 +29,9 @@ function CasePage() {
   const [saving, setSaving] = useState(false)
   const [editId, setEditId] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
+
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
 
   async function load() {
     try {
@@ -158,6 +165,8 @@ function CasePage() {
     return <div className="crud-loading">Chargement des Cases…</div>
   }
 
+  const paginatedCases = cases.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+
   return (
     <div className="crud-page">
       <div className="crud-header">
@@ -167,12 +176,14 @@ function CasePage() {
             {cases.length} Case{cases.length !== 1 ? "s" : ""} dans le système
           </p>
         </div>
-        <button
-          className="btn-primary"
-          onClick={showForm ? cancelForm : openAdd}
-        >
-          {showForm ? "✕ Annuler" : "+ Ajouter"}
-        </button>
+        {isAdmin && (
+          <button
+            className="btn-primary"
+            onClick={showForm ? cancelForm : openAdd}
+          >
+            {showForm ? "✕ Annuler" : "+ Ajouter"}
+          </button>
+        )}
       </div>
 
       {error && <div className="crud-banner crud-banner--error">{error}</div>}
@@ -229,11 +240,6 @@ function CasePage() {
             </label>
           </div>
 
-          <p className="form-note">
-            La quantité actuelle est calculée automatiquement depuis les mouvements de tous
-            les Articles stockés dans cette Case.
-          </p>
-
           <div className="form-actions">
             <button type="button" className="btn-secondary-sm" onClick={cancelForm}>
               Annuler
@@ -266,7 +272,7 @@ function CasePage() {
               </tr>
             </thead>
             <tbody style={{ opacity: loading ? 0.5 : 1 }}>
-              {cases.map(storageCase => {
+              {paginatedCases.map(storageCase => {
                 const visualRate = Math.min(
                   100,
                   Math.max(0, Number(storageCase.tauxOccupation ?? 0))
@@ -317,21 +323,31 @@ function CasePage() {
                       </span>
                     </td>
                     <td className="td-actions">
-                      <button className="btn-edit" onClick={() => openEdit(storageCase)}>
-                        Modifier
-                      </button>
-                      <button
-                        className="btn-delete"
-                        onClick={() => handleDelete(storageCase.caseId)}
-                      >
-                        Supprimer
-                      </button>
+                      {isAdmin && (
+                        <>
+                          <button className="btn-edit" onClick={() => openEdit(storageCase)}>
+                            Modifier
+                          </button>
+                          <button
+                            className="btn-delete"
+                            onClick={() => handleDelete(storageCase.caseId)}
+                          >
+                            Supprimer
+                          </button>
+                        </>
+                      )}
                     </td>
                   </tr>
                 )
               })}
             </tbody>
           </table>
+          <Pagination
+            currentPage={currentPage}
+            totalItems={cases.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
         </div>
       )}
     </div>

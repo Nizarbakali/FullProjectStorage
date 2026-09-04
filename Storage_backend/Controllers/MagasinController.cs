@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StudentApi.DTOs;
 using StudentApi.Services;
@@ -15,10 +16,12 @@ public class MagasinsController : ControllerBase
         _service = service;
     }
 
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAll()
         => Ok(await _service.GetAllAsync());
 
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -26,6 +29,7 @@ public class MagasinsController : ControllerBase
         return dto == null ? NotFound() : Ok(dto);
     }
 
+    [Authorize(Roles = "admin")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateMagasinDto dto)
     {
@@ -40,6 +44,7 @@ public class MagasinsController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "admin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateMagasinDto dto)
     {
@@ -54,6 +59,7 @@ public class MagasinsController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "admin")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {

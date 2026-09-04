@@ -1,6 +1,30 @@
 const API_URL = import.meta.env.VITE_API_URL
 
+// ── Auth header helper ────────────────────────────────────────────────────────
+function authHeaders(extra = {}) {
+  const token = localStorage.getItem('gmd_auth_token')
+  return {
+    ...extra,
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  }
+}
+
+// ── 401 interceptor: clear session and reload to show login page ──────────────
+function handleUnauthorized() {
+  localStorage.removeItem('gmd_auth_token')
+  localStorage.removeItem('gmd_auth_user')
+  // Reload the page so the Redux store is re-initialized from empty localStorage,
+  // which triggers the auth gate and shows the login page.
+  window.location.reload()
+}
+
 async function handleResponse(response) {
+  // Token expired or invalid → force re-login
+  if (response.status === 401) {
+    handleUnauthorized()
+    throw new Error('Session expirée. Veuillez vous reconnecter.')
+  }
+
   const responseText = await response.text()
   let payload = null
 
@@ -26,117 +50,144 @@ async function handleResponse(response) {
 
 // ── Magasins ──────────────────────────────────────────────────────
 export async function getMagasins() {
-  return handleResponse(await fetch(`${API_URL}/api/Magasins`))
+  return handleResponse(await fetch(`${API_URL}/api/Magasins`, {
+    headers: authHeaders()
+  }))
 }
 export async function createMagasin(dto) {
   return handleResponse(await fetch(`${API_URL}/api/Magasins`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(dto)
   }))
 }
 export async function updateMagasin(id, dto) {
   return handleResponse(await fetch(`${API_URL}/api/Magasins/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(dto)
   }))
 }
 export async function deleteMagasin(id) {
-  return handleResponse(await fetch(`${API_URL}/api/Magasins/${id}`, { method: "DELETE" }))
+  return handleResponse(await fetch(`${API_URL}/api/Magasins/${id}`, {
+    method: "DELETE",
+    headers: authHeaders()
+  }))
 }
 
 // ── Rayons ────────────────────────────────────────────────────────
 export async function getRayons() {
-  return handleResponse(await fetch(`${API_URL}/api/Rayons`))
+  return handleResponse(await fetch(`${API_URL}/api/Rayons`, {
+    headers: authHeaders()
+  }))
 }
 export async function createRayon(dto) {
   return handleResponse(await fetch(`${API_URL}/api/Rayons`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(dto)
   }))
 }
 export async function updateRayon(id, dto) {
   return handleResponse(await fetch(`${API_URL}/api/Rayons/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(dto)
   }))
 }
 export async function deleteRayon(id) {
-  return handleResponse(await fetch(`${API_URL}/api/Rayons/${id}`, { method: "DELETE" }))
+  return handleResponse(await fetch(`${API_URL}/api/Rayons/${id}`, {
+    method: "DELETE",
+    headers: authHeaders()
+  }))
 }
 
 // ── Zones ─────────────────────────────────────────────────────────
 export async function getZones() {
-  return handleResponse(await fetch(`${API_URL}/api/Zones`))
+  return handleResponse(await fetch(`${API_URL}/api/Zones`, {
+    headers: authHeaders()
+  }))
 }
 export async function createZone(dto) {
   return handleResponse(await fetch(`${API_URL}/api/Zones`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(dto)
   }))
 }
 export async function updateZone(id, dto) {
   return handleResponse(await fetch(`${API_URL}/api/Zones/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(dto)
   }))
 }
 export async function deleteZone(id) {
-  return handleResponse(await fetch(`${API_URL}/api/Zones/${id}`, { method: "DELETE" }))
+  return handleResponse(await fetch(`${API_URL}/api/Zones/${id}`, {
+    method: "DELETE",
+    headers: authHeaders()
+  }))
 }
 
 // ── Cases ─────────────────────────────────────────────────────────
 export async function getCases() {
-  return handleResponse(await fetch(`${API_URL}/api/Cases`))
+  return handleResponse(await fetch(`${API_URL}/api/Cases`, {
+    headers: authHeaders()
+  }))
 }
 export async function createCase(dto) {
   return handleResponse(await fetch(`${API_URL}/api/Cases`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(dto)
   }))
 }
 export async function updateCase(id, dto) {
   return handleResponse(await fetch(`${API_URL}/api/Cases/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(dto)
   }))
 }
 export async function deleteCase(id) {
-  return handleResponse(await fetch(`${API_URL}/api/Cases/${id}`, { method: "DELETE" }))
+  return handleResponse(await fetch(`${API_URL}/api/Cases/${id}`, {
+    method: "DELETE",
+    headers: authHeaders()
+  }))
 }
 
 // ── Articles ──────────────────────────────────────────────────────
 export async function getArticles() {
-  return handleResponse(await fetch(`${API_URL}/api/Articles`))
+  return handleResponse(await fetch(`${API_URL}/api/Articles`, {
+    headers: authHeaders()
+  }))
 }
 export async function createArticle(dto) {
   return handleResponse(await fetch(`${API_URL}/api/Articles`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(dto)
   }))
 }
 export async function updateArticle(id, dto) {
   return handleResponse(await fetch(`${API_URL}/api/Articles/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(dto)
   }))
 }
 export async function deleteArticle(id) {
-  return handleResponse(await fetch(`${API_URL}/api/Articles/${id}`, { method: "DELETE" }))
+  return handleResponse(await fetch(`${API_URL}/api/Articles/${id}`, {
+    method: "DELETE",
+    headers: authHeaders()
+  }))
 }
 
 export async function getArticleThresholds() {
   return handleResponse(
-    await fetch(`${API_URL}/api/Articles/thresholds`)
+    await fetch(`${API_URL}/api/Articles/thresholds`, {
+      headers: authHeaders()
+    })
   )
 }
 
@@ -144,9 +195,7 @@ export async function updateArticleThresholds(id, dto) {
   return handleResponse(
     await fetch(`${API_URL}/api/Articles/${id}/thresholds`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: authHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify(dto)
     })
   )
@@ -154,28 +203,33 @@ export async function updateArticleThresholds(id, dto) {
 
 // ── Données mensuelles ────────────────────────────────────────────
 export async function getMonthlyData() {
-  return handleResponse(await fetch(`${API_URL}/api/MonthlyData`))
+  return handleResponse(await fetch(`${API_URL}/api/MonthlyData`, {
+    headers: authHeaders()
+  }))
 }
 export async function getMonthlyDataById(id) {
-  return handleResponse(await fetch(`${API_URL}/api/MonthlyData/${id}`))
+  return handleResponse(await fetch(`${API_URL}/api/MonthlyData/${id}`, {
+    headers: authHeaders()
+  }))
 }
 export async function createMonthlyData(dto) {
   return handleResponse(await fetch(`${API_URL}/api/MonthlyData`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(dto)
   }))
 }
 export async function updateMonthlyData(id, dto) {
   return handleResponse(await fetch(`${API_URL}/api/MonthlyData/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(dto)
   }))
 }
 export async function deleteMonthlyData(id) {
   return handleResponse(await fetch(`${API_URL}/api/MonthlyData/${id}`, {
-    method: "DELETE"
+    method: "DELETE",
+    headers: authHeaders()
   }))
 }
 export async function scanCsv(file) {
@@ -183,6 +237,7 @@ export async function scanCsv(file) {
   formData.append("file", file)
   return handleResponse(await fetch(`${API_URL}/api/MonthlyData/scan`, {
     method: "POST",
+    headers: authHeaders(),
     body: formData
   }))
 }
@@ -191,6 +246,7 @@ export async function uploadCsv(file) {
   formData.append("file", file)
   return handleResponse(await fetch(`${API_URL}/api/MonthlyData/upload`, {
     method: "POST",
+    headers: authHeaders(),
     body: formData
   }))
 }
@@ -198,7 +254,38 @@ export async function uploadCsv(file) {
 export async function forecastNextYear(articleName) {
   return handleResponse(await fetch(`${API_URL}/api/forecast`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({ articleName })
   }))
 }
+
+// ── User Management (admin only) ──────────────────────────────────
+export async function getUsers() {
+  return handleResponse(await fetch(`${API_URL}/api/users`, {
+    headers: authHeaders()
+  }))
+}
+
+export async function createUser(dto) {
+  return handleResponse(await fetch(`${API_URL}/api/users`, {
+    method: "POST",
+    headers: authHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify(dto)
+  }))
+}
+
+export async function updateUser(id, dto) {
+  return handleResponse(await fetch(`${API_URL}/api/users/${id}`, {
+    method: "PUT",
+    headers: authHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify(dto)
+  }))
+}
+
+export async function deleteUser(id) {
+  return handleResponse(await fetch(`${API_URL}/api/users/${id}`, {
+    method: "DELETE",
+    headers: authHeaders()
+  }))
+}
+

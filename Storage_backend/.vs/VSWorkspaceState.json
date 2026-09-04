@@ -8,6 +8,6 @@
     "\\Models\\Entities",
     "\\Services"
   ],
-  "SelectedNode": "\\DTOs\\MonthlyDataDto.cs",
+  "SelectedNode": "\\Controllers\\ArticleController.cs",
   "PreviewInSolutionExplorer": false
 }

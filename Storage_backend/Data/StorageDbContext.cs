@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using StudentApi.Models.Entities;
 
 namespace StudentApi.Data;
@@ -15,6 +15,8 @@ public partial class StorageDbContext : DbContext
     {
     }
 
+    public virtual DbSet<AppUser> AppUsers { get; set; }
+
     public virtual DbSet<Article> Articles { get; set; }
 
     public virtual DbSet<Case> Cases { get; set; }
@@ -30,6 +32,32 @@ public partial class StorageDbContext : DbContext
     protected override void OnModelCreating(
         ModelBuilder modelBuilder)
     {
+        // ── AppUsers ──────────────────────────────────────────────────────────
+        modelBuilder.Entity<AppUser>(entity =>
+        {
+            entity.HasKey(e => e.UserId).HasName("PK_AppUsers");
+
+            entity.ToTable("AppUsers");
+
+            entity.HasIndex(e => e.Username, "UQ_AppUsers_Username").IsUnique();
+
+            entity.Property(e => e.Username)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+
+            entity.Property(e => e.PasswordHash)
+                .HasMaxLength(256)
+                .IsUnicode(false);
+
+            entity.Property(e => e.Role)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasDefaultValue("user");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("GETUTCDATE()");
+        });
+
         modelBuilder.Entity<Article>(entity =>
         {
             entity.HasKey(e => e.ArticleId)

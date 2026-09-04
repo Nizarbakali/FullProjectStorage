@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StudentApi.DTOs;
 using StudentApi.Services;
@@ -15,12 +16,14 @@ public class ArticlesController : ControllerBase
         _service = service;
     }
 
+    [Authorize]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ArticleDto>>> GetAll()
     {
         return Ok(await _service.GetAllAsync());
     }
 
+    [Authorize]
     [HttpGet("{id:int}")]
     public async Task<ActionResult<ArticleDto>> GetById(int id)
     {
@@ -28,6 +31,7 @@ public class ArticlesController : ControllerBase
         return dto == null ? NotFound() : Ok(dto);
     }
 
+    [Authorize(Roles = "admin")]
     [HttpPost]
     public async Task<ActionResult<ArticleDto>> Create(
         [FromBody] CreateArticleDto dto)
@@ -51,6 +55,7 @@ public class ArticlesController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "admin")]
     [HttpPut("{id:int}")]
     public async Task<ActionResult<ArticleDto>> Update(
         int id,
@@ -71,6 +76,7 @@ public class ArticlesController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "admin")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -86,6 +92,7 @@ public class ArticlesController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpGet("thresholds")]
     public async Task<ActionResult<IEnumerable<ArticleThresholdDto>>>
         GetThresholds()
@@ -93,6 +100,7 @@ public class ArticlesController : ControllerBase
         return Ok(await _service.GetThresholdsAsync());
     }
 
+    [Authorize(Roles = "admin")]
     [HttpPut("{id:int}/thresholds")]
     public async Task<IActionResult> UpdateThresholds(
         int id,

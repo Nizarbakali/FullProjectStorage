@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StudentApi.DTOs;
 using StudentApi.Services;
@@ -16,6 +17,7 @@ public class MonthlyDataController : ControllerBase
     }
 
     // GET api/MonthlyData
+    [Authorize]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<DonneeRowDto>>> GetAll()
     {
@@ -24,6 +26,7 @@ public class MonthlyDataController : ControllerBase
     }
 
     // GET api/MonthlyData/5
+    [Authorize]
     [HttpGet("{id:int}")]
     public async Task<ActionResult<DonneeRowDto>> GetById(int id)
     {
@@ -36,6 +39,7 @@ public class MonthlyDataController : ControllerBase
     }
 
     // POST api/MonthlyData
+    [Authorize(Roles = "admin")]
     [HttpPost]
     public async Task<ActionResult<DonneeRowDto>> Create(
         [FromBody] CreateDonneeDto dto)
@@ -60,6 +64,7 @@ public class MonthlyDataController : ControllerBase
     }
 
     // PUT api/MonthlyData/5
+    [Authorize(Roles = "admin")]
     [HttpPut("{id:int}")]
     public async Task<ActionResult<DonneeRowDto>> Update(
         int id,
@@ -85,6 +90,7 @@ public class MonthlyDataController : ControllerBase
     }
 
     // DELETE api/MonthlyData/5
+    [Authorize(Roles = "admin")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -104,6 +110,7 @@ public class MonthlyDataController : ControllerBase
     }
 
     // POST api/MonthlyData/scan
+    [Authorize(Roles = "admin")]
     [HttpPost("scan")]
     public async Task<ActionResult<CsvScanResultDto>> Scan(
         [FromForm] IFormFile file)
@@ -135,6 +142,7 @@ public class MonthlyDataController : ControllerBase
     }
 
     // POST api/MonthlyData/upload
+    [Authorize(Roles = "admin")]
     [HttpPost("upload")]
     public async Task<ActionResult<CsvUploadResultDto>> Upload(
         [FromForm] IFormFile file)

@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react"
+import { useSelector } from "react-redux"
 import {
   getMagasins,
   createMagasin,
   updateMagasin,
   deleteMagasin,
 } from "../services/api"
+import Pagination from "../components/Pagination"
 import "./CrudPage.css"
 
 const EMPTY_FORM = {
@@ -16,6 +18,8 @@ const EMPTY_FORM = {
 }
 
 function MagasinPage() {
+  const role = useSelector((state) => state.auth.role)
+  const isAdmin = role === "admin"
   const [magasins, setMagasins] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -24,6 +28,9 @@ function MagasinPage() {
   const [saving, setSaving] = useState(false)
   const [editId, setEditId] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
+
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
 
   async function load() {
     try {
@@ -176,6 +183,11 @@ function MagasinPage() {
     )
   }
 
+  const paginatedMagasins = magasins.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  )
+
   return (
     <div className="crud-page">
       <div className="crud-header">
@@ -189,19 +201,21 @@ function MagasinPage() {
           </p>
         </div>
 
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={
-            showForm
-              ? cancelForm
-              : openAdd
-          }
-        >
-          {showForm
-            ? "✕ Annuler"
-            : "+ Ajouter"}
-        </button>
+        {isAdmin && (
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={
+              showForm
+                ? cancelForm
+                : openAdd
+            }
+          >
+            {showForm
+              ? "✕ Annuler"
+              : "+ Ajouter"}
+          </button>
+        )}
       </div>
 
       {error && (
@@ -345,7 +359,7 @@ function MagasinPage() {
                 opacity: loading ? 0.5 : 1,
               }}
             >
-              {magasins.map((magasin) => (
+              {paginatedMagasins.map((magasin) => (
                 <tr key={magasin.magasinId}>
                   <td className="td-bold">
                     {magasin.codeMagasin}
@@ -384,32 +398,42 @@ function MagasinPage() {
                   </td>
 
                   <td className="td-actions">
-                    <button
-                      type="button"
-                      className="btn-edit"
-                      onClick={() =>
-                        openEdit(magasin)
-                      }
-                    >
-                      Modifier
-                    </button>
+                    {isAdmin && (
+                      <>
+                        <button
+                          type="button"
+                          className="btn-edit"
+                          onClick={() =>
+                            openEdit(magasin)
+                          }
+                        >
+                          Modifier
+                        </button>
 
-                    <button
-                      type="button"
-                      className="btn-delete"
-                      onClick={() =>
-                        handleDelete(
-                          magasin.magasinId
-                        )
-                      }
-                    >
-                      Supprimer
-                    </button>
+                        <button
+                          type="button"
+                          className="btn-delete"
+                          onClick={() =>
+                            handleDelete(
+                              magasin.magasinId
+                            )
+                          }
+                        >
+                          Supprimer
+                        </button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          <Pagination
+            currentPage={currentPage}
+            totalItems={magasins.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
         </div>
       )}
     </div>

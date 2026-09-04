@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react"
+import { useSelector } from "react-redux"
 import {
   createMonthlyData,
   deleteMonthlyData,
@@ -8,6 +9,7 @@ import {
   updateMonthlyData,
   uploadCsv,
 } from "../services/api"
+import Pagination from "../components/Pagination"
 import "./CsvUploadPage.css"
 import "./CrudPage.css"
 
@@ -20,6 +22,8 @@ const EMPTY_MOVEMENT = {
 }
 
 function CsvUploadPage() {
+  const role = useSelector((state) => state.auth.role)
+  const isAdmin = role === "admin"
   const [dragging, setDragging] = useState(false)
   const [file, setFile] = useState(null)
   const [uploading, setUploading] = useState(false)
@@ -36,6 +40,9 @@ function CsvUploadPage() {
   const [saving, setSaving] = useState(false)
   const [movementForm, setMovementForm] = useState(EMPTY_MOVEMENT)
   const [search, setSearch] = useState("")
+
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 15
 
   const inputRef = useRef()
 
@@ -78,6 +85,15 @@ function CsvUploadPage() {
       formatMois(movement.mois).includes(term)
     ))
   }, [movements, search])
+
+  // Reset to first page when search changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [search])
+
+  const paginatedMovements = useMemo(() => {
+    return filteredMovements.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+  }, [filteredMovements, currentPage])
 
   function pickFile(selectedFile) {
     if (!selectedFile) return
@@ -134,6 +150,7 @@ function CsvUploadPage() {
     setError("")
     setSuccess("")
     setWarning("")
+    window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
   function openEditMovement(movement) {
@@ -149,6 +166,7 @@ function CsvUploadPage() {
     setError("")
     setSuccess("")
     setWarning("")
+    window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
   function cancelMovementForm() {
@@ -264,19 +282,21 @@ function CsvUploadPage() {
             Chaque mouvement appartient à un Article, une Case précise et un mois.
           </p>
         </div>
+      {isAdmin && (
         <button
           className="btn-primary"
           onClick={showForm ? cancelMovementForm : openAddMovement}
         >
           {showForm ? "✕ Annuler" : "+ Ajouter un mouvement"}
         </button>
+      )}
       </div>
 
       {error && <div className="csv-banner csv-banner--error">{error}</div>}
       {success && <div className="crud-banner crud-banner--success">{success}</div>}
       {warning && <div className="crud-banner crud-banner--warning">{warning}</div>}
 
-      {showForm && (
+      {isAdmin && showForm && (
         <form className="crud-form" onSubmit={handleMovementSubmit}>
           <h3 className="form-title">
             {editId === null ? "Nouveau mouvement" : `Modifier le mouvement ${editId}`}
@@ -365,7 +385,8 @@ function CsvUploadPage() {
         </form>
       )}
 
-      <section className="csv-import-panel">
+      {isAdmin && (
+        <section className="csv-import-panel">
         <h2>Importer un fichier CSV</h2>
         <p className="csv-subtitle">
           Colonnes exactes :{" "}
@@ -426,6 +447,7 @@ function CsvUploadPage() {
           {uploading ? "Import en cours…" : "Importer le CSV"}
         </button>
       </section>
+      )}
 
       {result && (
         <section className="result-card">
@@ -514,13 +536,24 @@ function CsvUploadPage() {
               {movements.length}
             </p>
           </div>
-          <input
-            className="movement-search"
-            type="search"
-            placeholder="Article, mois, emplacement ou source…"
-            value={search}
-            onChange={event => setSearch(event.target.value)}
-          />
+          <div className="movement-actions">
+            <input
+              className="movement-search"
+              type="search"
+              placeholder="Article, mois, emplacement ou source…"
+              value={search}
+              onChange={event => setSearch(event.target.value)}
+            />
+          {isAdmin && (
+            <button
+              className="btn-primary"
+              onClick={showForm ? cancelMovementForm : openAddMovement}
+              style={{ whiteSpace: "nowrap" }}
+            >
+              {showForm ? "✕ Annuler" : "+ Ajouter une ligne"}
+            </button>
+          )}
+          </div>
         </div>
 
         {loadingData ? (
@@ -544,7 +577,7 @@ function CsvUploadPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredMovements.map(movement => (
+                {paginatedMovements.map(movement => (
                   <tr
                     key={movement.donneeId}
                     className={movement.capaciteDepassee ? "tr-warning" : ""}
@@ -578,24 +611,37 @@ function CsvUploadPage() {
                       )}
                     </td>
                     <td className="td-actions">
-                      <button
-                        className="btn-edit"
-                        onClick={() => openEditMovement(movement)}
-                      >
-                        Modifier
-                      </button>
-                      <button
-                        className="btn-delete"
-                        onClick={() => handleMovementDelete(movement.donneeId)}
-                      >
-                        Supprimer
-                      </button>
+                      {isAdmin && (
+                        <>
+                          <button
+                            className="btn-edit"
+                            onClick={() => openEditMovement(movement)}
+                          >
+                            Modifier
+                          </button>
+                          <button
+                            className="btn-delete"
+                            onClick={() => handleMovementDelete(movement.donneeId)}
+                          >
+                            Supprimer
+                          </button>
+                        </>
+                      )}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+        )}
+        
+        {filteredMovements.length > 0 && !loadingData && (
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filteredMovements.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
         )}
       </section>
     </div>

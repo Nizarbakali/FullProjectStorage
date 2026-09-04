@@ -1,4 +1,7 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using StudentApi.Data;
 using StudentApi.Services;
 
@@ -59,6 +62,36 @@ builder.Services.AddDbContext<StorageDbContext>(
         options.UseSqlServer(connectionString));
 
 // ----------------------------------------------------
+// JWT Authentication
+// ----------------------------------------------------
+var jwtSection = builder.Configuration.GetSection("Jwt");
+var jwtKey = jwtSection["Key"]
+    ?? throw new InvalidOperationException("Jwt:Key is missing from appsettings.json.");
+
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme    = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer           = true,
+            ValidateAudience         = true,
+            ValidateLifetime         = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer              = jwtSection["Issuer"],
+            ValidAudience            = jwtSection["Audience"],
+            IssuerSigningKey         = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtKey))
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+// ----------------------------------------------------
 // Dependency injection
 // ----------------------------------------------------
 builder.Services.AddHttpClient<
@@ -105,10 +138,27 @@ builder.Services.AddScoped<
     IForecastService,
     ForecastService>();
 
+builder.Services.AddScoped<
+    IAuthService,
+    AuthService>();
+
+builder.Services.AddScoped<
+    IUserService,
+    UserService>();
+
 // ----------------------------------------------------
 // Build application
 // ----------------------------------------------------
 var app = builder.Build();
+
+// ----------------------------------------------------
+// Seed default admin (runs once if no admin exists)
+// ----------------------------------------------------
+using (var scope = app.Services.CreateScope())
+{
+    var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
+    await userService.SeedDefaultAdminAsync();
+}
 
 // ----------------------------------------------------
 // HTTP request pipeline
@@ -123,6 +173,7 @@ app.UseRouting();
 
 app.UseCors("ReactFrontend");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

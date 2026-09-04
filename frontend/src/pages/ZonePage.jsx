@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react"
+import { useSelector } from "react-redux"
 import { getZones, getRayons, createZone, updateZone, deleteZone } from "../services/api"
+import Pagination from "../components/Pagination"
 import "./CrudPage.css"
 
 const EMPTY_FORM = { rayonId: "", codeZone: "", numeroLigne: "", actif: true }
 
 function ZonePage() {
+  const role = useSelector((state) => state.auth.role)
+  const isAdmin = role === "admin"
   const [zones,    setZones]    = useState([])
   const [rayons,   setRayons]   = useState([])
   const [loading,  setLoading]  = useState(true)
@@ -14,6 +18,9 @@ function ZonePage() {
   const [saving,   setSaving]   = useState(false)
   const [editId,   setEditId]   = useState(null)
   const [form,     setForm]     = useState(EMPTY_FORM)
+
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
 
   async function load() {
     try {
@@ -90,6 +97,8 @@ function ZonePage() {
 
   if (loading && zones.length === 0) return <div className="crud-loading">Chargement des zones…</div>
 
+  const paginatedZones = zones.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+
   return (
     <div 
       className="crud-page"
@@ -106,9 +115,11 @@ function ZonePage() {
           <h1>Zones</h1>
           <p className="crud-subtitle">{zones.length} zone{zones.length !== 1 ? "s" : ""} dans le système</p>
         </div>
-        <button className="btn-primary" onClick={showForm ? cancelForm : openAdd}>
-          {showForm ? "✕  Annuler" : "+ Ajouter"}
-        </button>
+        {isAdmin && (
+          <button className="btn-primary" onClick={showForm ? cancelForm : openAdd}>
+            {showForm ? "✕  Annuler" : "+ Ajouter"}
+          </button>
+        )}
       </div>
 
       {error   && <div className="crud-banner crud-banner--error">{error}</div>}
@@ -163,7 +174,7 @@ function ZonePage() {
               </tr>
             </thead>
             <tbody style={{ opacity: loading ? 0.5 : 1 }}>
-              {zones.map(z => (
+              {paginatedZones.map(z => (
                 <tr key={z.zoneId}>
                   <td className="td-bold">{z.codeZone}</td>
                   <td><span className="badge badge--blue">{z.codeRayon}</span></td>
@@ -175,13 +186,23 @@ function ZonePage() {
                     </span>
                   </td>
                   <td className="td-actions">
-                    <button className="btn-edit" onClick={() => openEdit(z)}>Modifier</button>
-                    <button className="btn-delete" onClick={() => handleDelete(z.zoneId)}>Supprimer</button>
+                    {isAdmin && (
+                      <>
+                        <button className="btn-edit" onClick={() => openEdit(z)}>Modifier</button>
+                        <button className="btn-delete" onClick={() => handleDelete(z.zoneId)}>Supprimer</button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          <Pagination
+            currentPage={currentPage}
+            totalItems={zones.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
         </div>
       )}
     </div>

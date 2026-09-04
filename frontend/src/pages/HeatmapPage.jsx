@@ -89,24 +89,6 @@ function HeatmapPage() {
    * - its magasin
    */
   const preparedCases = useMemo(() => {
-    const articleByCaseId = new Map()
-
-    articles.forEach(article => {
-      const articleCaseIds =
-        article.caseIds?.length > 0
-          ? article.caseIds
-          : article.caseId
-            ? [article.caseId]
-            : []
-
-      articleCaseIds.forEach(caseId => {
-        articleByCaseId.set(
-          Number(caseId),
-          article
-        )
-      })
-    })
-
     const zoneById = new Map(
       zones.map(zone => [
         Number(zone.zoneId),
@@ -129,11 +111,6 @@ function HeatmapPage() {
     )
 
     return cases.map(currentCase => {
-      const article =
-        articleByCaseId.get(
-          Number(currentCase.caseId)
-        ) || null
-
       const zone =
         zoneById.get(
           Number(currentCase.zoneId)
@@ -151,36 +128,15 @@ function HeatmapPage() {
           ) || null
         : null
 
-      const stockNet = Number(
-        article?.stockNet ?? 0
-      )
-
-      const totalCapacity = Number(
-        article?.totalCaseCapacity ?? 0
-      )
-
-      const utilization =
-        article && totalCapacity > 0
-          ? Math.max(
-              0,
-              (stockNet / totalCapacity) * 100
-            )
-          : null
-
       return {
         ...currentCase,
-        article,
         zone,
         rayon,
-        magasin,
-        stockNet,
-        totalCapacity,
-        utilization
+        magasin
       }
     })
   }, [
     cases,
-    articles,
     zones,
     rayons,
     magasins
@@ -395,14 +351,13 @@ function HeatmapPage() {
   ])
 
   function getStatus(currentCase) {
-    if (!currentCase.article) {
+    if (currentCase.articlesCount === 0) {
       return "available"
     }
 
-    const rate =
-      currentCase.utilization ?? 0
+    const rate = currentCase.tauxOccupation ?? 0
 
-    if (rate > 100) {
+    if (rate > 100 || currentCase.capaciteDepassee) {
       return "over"
     }
 
@@ -425,7 +380,7 @@ function HeatmapPage() {
       return "—"
     }
 
-    return `${Math.round(rate)}%`
+    return `${Number(rate).toFixed(1).replace(".0", "")}%`
   }
 
   function handleMagasinChange(event) {
@@ -448,22 +403,13 @@ function HeatmapPage() {
   const availableCount =
     filteredCases.filter(
       currentCase =>
-        !currentCase.article
+        currentCase.articlesCount === 0
     ).length
 
-  const overCapacityArticleCount =
-    new Set(
-      filteredCases
-        .filter(
-          currentCase =>
-            currentCase.article &&
-            currentCase.utilization > 100
-        )
-        .map(
-          currentCase =>
-            currentCase.article.articleId
-        )
-    ).size
+  const overCapacityCasesCount =
+    filteredCases.filter(
+      currentCase => currentCase.capaciteDepassee
+    ).length
 
   if (loading) {
     return (
@@ -497,10 +443,10 @@ function HeatmapPage() {
             {availableCount} disponibles
           </span>
 
-          {overCapacityArticleCount > 0 && (
+          {overCapacityCasesCount > 0 && (
             <span className="heatmap-counter-danger">
-              {overCapacityArticleCount} article
-              {overCapacityArticleCount > 1
+              {overCapacityCasesCount} case
+              {overCapacityCasesCount > 1
                 ? "s"
                 : ""}{" "}
               en dépassement
@@ -692,17 +638,15 @@ function HeatmapPage() {
                                   </strong>
 
                                   <span>
-                                    {currentCase
-                                      .article
-                                      ?.codeArticle ||
-                                      "Disponible"}
+                                    {currentCase.articlesCount === 0
+                                      ? "Disponible"
+                                      : `${currentCase.articlesCount} article${currentCase.articlesCount > 1 ? "s" : ""}`}
                                   </span>
 
-                                  {currentCase.article && (
+                                  {currentCase.articlesCount > 0 && (
                                     <small>
                                       {formatRate(
-                                        currentCase
-                                          .utilization
+                                        currentCase.tauxOccupation
                                       )}
                                     </small>
                                   )}
@@ -758,7 +702,7 @@ function HeatmapPage() {
             </button>
           </div>
 
-          {!selectedCase.article ? (
+          {selectedCase.articlesCount === 0 ? (
             <p className="heatmap-available-message">
               Cette case est disponible.
               Capacité maximale :{" "}
@@ -769,38 +713,24 @@ function HeatmapPage() {
           ) : (
             <div className="heatmap-details-grid">
               <div>
-                <span>Article</span>
+                <span>Articles stockés</span>
 
                 <strong>
-                  {
-                    selectedCase.article
-                      .codeArticle
-                  }
+                  {selectedCase.articlesCount}
                 </strong>
               </div>
 
               <div>
-                <span>Nom</span>
+                <span>Quantité actuelle</span>
 
                 <strong>
-                  {
-                    selectedCase.article
-                      .nomArticle
-                  }
-                </strong>
-              </div>
-
-              <div>
-                <span>Stock net</span>
-
-                <strong>
-                  {selectedCase.stockNet}
+                  {selectedCase.quantiteActuelle}
                 </strong>
               </div>
 
               <div>
                 <span>
-                  Capacité de cette case
+                  Capacité maximale
                 </span>
 
                 <strong>
@@ -813,25 +743,12 @@ function HeatmapPage() {
 
               <div>
                 <span>
-                  Capacité totale assignée
-                </span>
-
-                <strong>
-                  {
-                    selectedCase
-                      .totalCapacity
-                  }
-                </strong>
-              </div>
-
-              <div>
-                <span>
-                  Pression de capacité
+                  Taux d'occupation
                 </span>
 
                 <strong>
                   {formatRate(
-                    selectedCase.utilization
+                    selectedCase.tauxOccupation
                   )}
                 </strong>
               </div>

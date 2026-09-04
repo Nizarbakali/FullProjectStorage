@@ -16,7 +16,7 @@
 .csv-header h1 {
   font-size: 2.2rem;
   font-weight: 800;
-  background: linear-gradient(135deg, var(--primary), #fb7185);
+  background: var(--primary-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin: 0 0 0.4rem;
@@ -37,19 +37,18 @@
   color: var(--primary);
 }
 
-/* ── Drop zone ───────────────────────────────────────────────────── */
 .drop-zone {
   border: 2px dashed var(--border);
-  border-radius: 14px;
+  border-radius: 16px;
   background: var(--card-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   padding: 2.5rem;
   text-align: center;
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  transition: all 0.25s ease;
   margin-bottom: 1rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
 .drop-zone:hover {
@@ -137,19 +136,24 @@
 .btn-upload {
   display: block;
   width: 100%;
-  padding: 0.85rem;
-  background: linear-gradient(135deg, var(--primary), #fb7185);
+  padding: 0.95rem;
+  background: var(--primary-gradient);
   color: #fff;
   font-size: 1rem;
   font-weight: 600;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  transition: opacity 0.2s, transform 0.15s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   margin-bottom: 2rem;
+  box-shadow: 0 4px 15px var(--primary-light);
 }
 
-.btn-upload:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+.btn-upload:hover:not(:disabled) { 
+  opacity: 1; 
+  transform: translateY(-2px); 
+  box-shadow: 0 8px 25px var(--primary-light);
+}
 .btn-upload:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .btn-secondary {
@@ -173,13 +177,13 @@
 /* ── Result card ─────────────────────────────────────────────────── */
 .result-card {
   background: var(--card-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.4rem;
+  border-radius: 16px;
+  padding: 1.5rem;
   margin-bottom: 2rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
 .result-summary {
@@ -285,13 +289,13 @@
 .csv-import-panel,
 .movement-section {
   background: var(--card-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 1.4rem;
+  border-radius: 16px;
+  padding: 1.5rem;
   margin-bottom: 1.5rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
 .csv-import-panel h2,
@@ -319,8 +323,18 @@
   margin-bottom: 1rem;
 }
 
+.movement-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex: 1;
+  justify-content: flex-end;
+  min-width: 300px;
+}
+
 .movement-search {
-  min-width: min(100%, 340px);
+  width: 100%;
+  max-width: 340px;
   padding: 0.65rem 0.85rem;
   background: var(--input-bg);
   border: 1px solid var(--input-border);
