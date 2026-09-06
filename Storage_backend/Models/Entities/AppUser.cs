@@ -6,7 +6,11 @@ public class AppUser
 
     public string Username { get; set; } = null!;
 
-    /// <summary>SHA-256 hex hash of the password.</summary>
+    /// <summary>
+    /// Salted PBKDF2 hash ("PBKDF2.iterations.salt.hash"). Accounts created
+    /// before this scheme existed may still carry a legacy unsalted SHA-256
+    /// hex hash; AuthService upgrades it automatically on next login.
+    /// </summary>
     public string PasswordHash { get; set; } = null!;
 
     /// <summary>"admin" or "user"</summary>

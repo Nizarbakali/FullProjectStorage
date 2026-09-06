@@ -8,7 +8,7 @@ public interface IArticleService
     Task<ArticleDto?> GetByIdAsync(int id);
     Task<ArticleDto> CreateAsync(CreateArticleDto dto);
     Task<ArticleDto?> UpdateAsync(int id, UpdateArticleDto dto);
-    Task<bool> DeleteAsync(int id);
+    Task<DeleteResultDto?> DeleteAsync(int id);
 
     Task<IEnumerable<ArticleThresholdDto>> GetThresholdsAsync();
     Task<bool> UpdateThresholdsAsync(

@@ -1,0 +1,20 @@
+# Visual Studio / VS Code
+.vs/
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.user
+*.suo
+
+# .NET build output
+Storage_backend/bin/
+Storage_backend/obj/
+**/bin/
+**/obj/
+
+# Node (frontend already has its own .gitignore, this is a repo-wide backstop)
+node_modules/
+
+# OS cruft
+.DS_Store
+Thumbs.db

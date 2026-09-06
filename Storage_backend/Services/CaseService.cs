@@ -136,22 +136,58 @@ public class CaseService : ICaseService
         return await GetByIdAsync(id);
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<DeleteResultDto?> DeleteAsync(int id)
     {
         var @case = await _context.Cases
             .Include(c => c.Articles)
             .Include(c => c.Donnees)
+                .ThenInclude(d => d.Article)
             .FirstOrDefaultAsync(c => c.CaseId == id);
 
         if (@case == null)
-            return false;
+            return null;
 
-        if (@case.Donnees.Any())
+        // A movement can only be detached (CaseId -> null) if no other row
+        // already occupies that (ArticleId, Mois, CaseId IS NULL) slot —
+        // that combination is unique for legacy rows. This almost never
+        // happens in practice; when it does, surface exactly which
+        // Article/month pairs need manual attention instead of guessing.
+        var conflicts = new List<string>();
+
+        foreach (var donnee in @case.Donnees)
+        {
+            var legacyConflict = await _context.Donnees.AnyAsync(d =>
+                d.DonneeId != donnee.DonneeId &&
+                d.ArticleId == donnee.ArticleId &&
+                d.CaseId == null &&
+                d.Mois == donnee.Mois);
+
+            if (legacyConflict)
+            {
+                conflicts.Add(
+                    $"{donnee.Article.CodeArticle} ({donnee.Mois:yyyy-MM})");
+            }
+        }
+
+        if (conflicts.Count > 0)
         {
             throw new InvalidOperationException(
-                "Impossible de supprimer cette Case : elle possède " +
-                "un historique de mouvements. Supprimez ou déplacez " +
-                "d'abord ses mouvements depuis Données Mensuelles.");
+                "Impossible de supprimer cette Case automatiquement : un " +
+                "mouvement Legacy existe déjà pour le même Article et le " +
+                "même mois pour " + string.Join(", ", conflicts) + ". " +
+                "Résolvez ce conflit dans Données Mensuelles avant de " +
+                "supprimer cette Case.");
+        }
+
+        var location = BuildCaseLocation(@case);
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var archivedCount = @case.Donnees.Count;
+
+        foreach (var donnee in @case.Donnees)
+        {
+            donnee.CaseId = null;
+            donnee.AncienEmplacement = location;
+            donnee.DetacheLe = today;
         }
 
         var affectedArticles = @case.Articles.ToList();
@@ -169,7 +205,26 @@ public class CaseService : ICaseService
         }
 
         await _context.SaveChangesAsync();
-        return true;
+
+        if (archivedCount == 0)
+        {
+            return new DeleteResultDto
+            {
+                Status = "deleted",
+                Message = "Case supprimée."
+            };
+        }
+
+        return new DeleteResultDto
+        {
+            Status = "archived",
+            MovementsAffected = archivedCount,
+            Date = today,
+            Message = $"Case supprimée. {archivedCount} mouvement" +
+                (archivedCount > 1 ? "s ont" : " a") +
+                $" été archivé{(archivedCount > 1 ? "s" : "")} le " +
+                $"{today:dd/MM/yyyy} (visible dans Données Mensuelles)."
+        };
     }
 
     internal static string ComputeStatut(

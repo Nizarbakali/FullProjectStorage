@@ -5,38 +5,24 @@ import { setActivePage } from "./store/navigationSlice"
 import { logout } from "./store/authSlice"
 
 import LoginPage          from "./pages/LoginPage"
-import MagasinPage        from "./pages/MagasinPage"
-import RayonPage          from "./pages/RayonPage"
-import ZonePage           from "./pages/ZonePage"
-import CasePage           from "./pages/CasePage"
-import HeatmapPage        from "./pages/HeatmapPage"
-import ArticlePage        from "./pages/ArticlePage"
-import CsvUploadPage      from "./pages/CsvUploadPage"
-import ChartsPage         from "./pages/ChartsPage"
-import MapPage            from "./pages/MapPage"
+import DashboardPage      from "./pages/DashboardPage"
+import StructurePage      from "./pages/StructurePage"
+import StockPage          from "./pages/StockPage"
+import AnalysePage        from "./pages/AnalysePage"
 import UserManagementPage from "./pages/UserManagementPage"
 
 import "./App.css"
 
-// ── Tab definitions ───────────────────────────────────────────────────────────
-const ADMIN_TABS = [
-  { id: "donnees",       label: "Données Mensuelles" },
-  { id: "magasins",      label: "Magasins"           },
-  { id: "rayons",        label: "Rayons"              },
-  { id: "zones",         label: "Zones"               },
-  { id: "cases",         label: "Cases"               },
-  { id: "articles",      label: "Articles"            },
-    { id: "heatmap",       label: "Heatmap"             },
-  { id: "graphiques",    label: "Graphiques"          },
-  { id: "carte",         label: "Carte"               },
-  { id: "utilisateurs",  label: "Utilisateurs"     },
-]
-
-// User role: read-only visualisation tabs only
-const USER_TABS = [
-  { id: "heatmap",    label: "Heatmap"    },
-  { id: "graphiques", label: "Graphiques" },
-  { id: "carte",      label: "Carte"      },
+// ── Section definitions ───────────────────────────────────────────────────────
+// Each section groups what used to be flat, unrelated tabs under the task it
+// actually serves, so the nav mirrors what a user is trying to do rather than
+// the database tables underneath it.
+const SECTIONS = [
+  { id: "dashboard", label: "Tableau de bord", group: "Vue d'ensemble",         roles: ["admin", "user"] },
+  { id: "structure", label: "Structure",       group: "Hiérarchie physique",   roles: ["admin"] },
+  { id: "stock",     label: "Stock",           group: "Références & mouvements", roles: ["admin"] },
+  { id: "analyse",   label: "Analyse",         group: "Pilotage",              roles: ["admin", "user"] },
+  { id: "admin",     label: "Utilisateurs",    group: "Administration",        roles: ["admin"] },
 ]
 
 function App() {
@@ -44,8 +30,7 @@ function App() {
   const activePage = useSelector((state) => state.navigation.activePage)
   const { isAuthenticated, username, role } = useSelector((state) => state.auth)
 
-  const isAdmin = role === "admin"
-  const tabs    = isAdmin ? ADMIN_TABS : USER_TABS
+  const sections = SECTIONS.filter(s => s.roles.includes(role))
 
   const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark")
 
@@ -56,14 +41,25 @@ function App() {
 
   // When the role changes (e.g. after login), make sure the active page is valid
   useEffect(() => {
-    const allowed = tabs.map(t => t.id)
+    const allowed = sections.map(s => s.id)
     if (!allowed.includes(activePage)) {
-      dispatch(setActivePage(tabs[0].id))
+      dispatch(setActivePage(allowed[0] ?? "dashboard"))
     }
   }, [role]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Auth gate ───────────────────────────────────────────────────────────────
   if (!isAuthenticated) return <LoginPage />
+
+  // Group sections by their sidebar group, preserving SECTIONS order.
+  const groups = []
+  for (const section of sections) {
+    let group = groups.find(g => g.label === section.group)
+    if (!group) {
+      group = { label: section.group, items: [] }
+      groups.push(group)
+    }
+    group.items.push(section)
+  }
 
   // ── Authenticated shell ─────────────────────────────────────────────────────
   return (
@@ -71,22 +67,9 @@ function App() {
       <nav className="app-nav">
         <span className="app-nav__brand">GMD Metal Tanger</span>
 
-        <div className="app-nav__tabs">
-          {tabs.map((tab) => (
-            <button
-              type="button"
-              key={tab.id}
-              className={`app-nav__tab ${activePage === tab.id ? "app-nav__tab--active" : ""}`}
-              onClick={() => dispatch(setActivePage(tab.id))}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
         <div className="app-nav__right">
           <span className={`nav-role-badge nav-role-badge--${role}`}>
-            {role === "admin" ? "" : ""} {username}
+            {username}
           </span>
 
           <button
@@ -108,18 +91,33 @@ function App() {
         </div>
       </nav>
 
-      <main className="app-main">
-        {activePage === "donnees"      && <CsvUploadPage />}
-        {activePage === "magasins"     && <MagasinPage />}
-        {activePage === "rayons"       && <RayonPage />}
-        {activePage === "zones"        && <ZonePage />}
-        {activePage === "cases"        && <CasePage />}
-        {activePage === "heatmap"      && <HeatmapPage />}
-        {activePage === "articles"     && <ArticlePage />}
-        {activePage === "graphiques"   && <ChartsPage />}
-        {activePage === "carte"        && <MapPage />}
-        {activePage === "utilisateurs" && <UserManagementPage />}
-      </main>
+      <div className="app-body">
+        <aside className="app-sidebar">
+          {groups.map(group => (
+            <div className="app-sidebar__group" key={group.label}>
+              <span className="app-sidebar__eyebrow">{group.label}</span>
+              {group.items.map(section => (
+                <button
+                  type="button"
+                  key={section.id}
+                  className={`app-sidebar__item ${activePage === section.id ? "app-sidebar__item--active" : ""}`}
+                  onClick={() => dispatch(setActivePage(section.id))}
+                >
+                  {section.label}
+                </button>
+              ))}
+            </div>
+          ))}
+        </aside>
+
+        <main className="app-main">
+          {activePage === "dashboard" && <DashboardPage />}
+          {activePage === "structure" && <StructurePage />}
+          {activePage === "stock"     && <StockPage />}
+          {activePage === "analyse"   && <AnalysePage />}
+          {activePage === "admin"     && <UserManagementPage />}
+        </main>
+      </div>
     </div>
   )
 }

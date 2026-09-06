@@ -103,24 +103,54 @@ public class ArticleService : IArticleService
             .Where(c => !selectedCaseIds.Contains(c.CaseId))
             .ToList();
 
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var conflicts = new List<string>();
+
         foreach (var removedCase in removedCases)
         {
-            var hasMovements = article.Donnees.Any(d =>
-                d.CaseId == removedCase.CaseId);
+            var movements = article.Donnees
+                .Where(d => d.CaseId == removedCase.CaseId)
+                .ToList();
 
-            if (hasMovements)
+            foreach (var donnee in movements)
             {
-                throw new InvalidOperationException(
-                    $"Impossible de retirer la Case " +
-                    $"{removedCase.CodeCase} de cet Article : " +
-                    "elle possède un historique de mouvements. " +
-                    "Modifiez ou supprimez d'abord ces mouvements " +
-                    "dans Données Mensuelles.");
+                var legacyConflict = await _context.Donnees.AnyAsync(d =>
+                    d.DonneeId != donnee.DonneeId &&
+                    d.ArticleId == donnee.ArticleId &&
+                    d.CaseId == null &&
+                    d.Mois == donnee.Mois);
+
+                if (legacyConflict)
+                {
+                    conflicts.Add(
+                        $"{removedCase.CodeCase} ({donnee.Mois:yyyy-MM})");
+                }
             }
         }
 
+        if (conflicts.Count > 0)
+        {
+            throw new InvalidOperationException(
+                "Impossible de retirer ces Cases automatiquement : un " +
+                "mouvement Legacy existe déjà pour le même Article et le " +
+                "même mois pour " + string.Join(", ", conflicts) + ". " +
+                "Résolvez ce conflit dans Données Mensuelles d'abord.");
+        }
+
         foreach (var removedCase in removedCases)
+        {
+            var location = BuildCaseLocation(removedCase);
+
+            foreach (var donnee in article.Donnees
+                .Where(d => d.CaseId == removedCase.CaseId))
+            {
+                donnee.CaseId = null;
+                donnee.AncienEmplacement = location;
+                donnee.DetacheLe = today;
+            }
+
             article.Cases.Remove(removedCase);
+        }
 
         var currentCaseIds = article.Cases
             .Select(c => c.CaseId)
@@ -135,6 +165,10 @@ public class ArticleService : IArticleService
         article.CodeArticle = code;
         article.NomArticle = dto.NomArticle.Trim();
         article.Actif = dto.Actif;
+
+        if (dto.Actif)
+            article.DesactiveLe = null;
+
         article.Seuil = ValidateThreshold(dto.Seuil);
         article.FullLocation =
             BuildFullLocation(article.Cases);
@@ -144,7 +178,7 @@ public class ArticleService : IArticleService
         return await GetByIdAsync(id);
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<DeleteResultDto?> DeleteAsync(int id)
     {
         var article = await _context.Articles
             .Include(a => a.Cases)
@@ -152,21 +186,46 @@ public class ArticleService : IArticleService
             .FirstOrDefaultAsync(a => a.ArticleId == id);
 
         if (article == null)
-            return false;
+            return null;
 
-        if (article.Donnees.Any())
+        // An Article's movements require a non-null ArticleId, so unlike a
+        // Case they can't just be detached. Since Article already has an
+        // Actif flag, deactivate instead of hard-deleting: history stays
+        // intact under the same ArticleId, and the UI already understands
+        // "Inactif" as a first-class state.
+        if (article.Donnees.Count > 0)
         {
-            throw new InvalidOperationException(
-                "Impossible de supprimer cet Article : il possède " +
-                "un historique de mouvements. Supprimez d'abord ses " +
-                "mouvements dans Données Mensuelles.");
+            var movementCount = article.Donnees.Count;
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+            article.Actif = false;
+            article.DesactiveLe = today;
+            article.Cases.Clear();
+            article.FullLocation = null;
+
+            await _context.SaveChangesAsync();
+
+            return new DeleteResultDto
+            {
+                Status = "deactivated",
+                MovementsAffected = movementCount,
+                Date = today,
+                Message = $"Cet Article a un historique de {movementCount} " +
+                    $"mouvement{(movementCount > 1 ? "s" : "")} : il a été " +
+                    $"désactivé le {today:dd/MM/yyyy} au lieu d'être " +
+                    "supprimé, afin de conserver cet historique."
+            };
         }
 
         article.Cases.Clear();
         _context.Articles.Remove(article);
         await _context.SaveChangesAsync();
 
-        return true;
+        return new DeleteResultDto
+        {
+            Status = "deleted",
+            Message = "Article supprimé."
+        };
     }
 
     public async Task<IEnumerable<ArticleThresholdDto>>
@@ -308,6 +367,15 @@ public class ArticleService : IArticleService
         return threshold;
     }
 
+    private static string BuildCaseLocation(Case @case)
+    {
+        return
+            $"{@case.Zone.Rayon.Magasin.NomMagasin} > " +
+            $"{@case.Zone.Rayon.CodeRayon} > " +
+            $"{@case.Zone.CodeZone} > " +
+            $"{@case.CodeCase}";
+    }
+
     private static string? BuildFullLocation(
         IEnumerable<Case> cases)
     {
@@ -359,6 +427,7 @@ public class ArticleService : IArticleService
             FullLocation =
                 BuildFullLocation(linkedCases),
             Actif = article.Actif,
+            DesactiveLe = article.DesactiveLe,
             TotalQuantiteEntrer = totalIn,
             TotalQuantiteSortie = totalOut,
             StockNet = totalIn - totalOut,

@@ -1,0 +1,55 @@
+.structure-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 0;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  color: var(--text);
+}
+
+.structure-header { margin-bottom: 1.25rem; }
+
+.structure-header h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0 0 0.25rem;
+}
+
+.structure-crumbs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+}
+
+.structure-crumb {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.25rem 0.4rem;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.structure-crumb:hover { background: var(--table-hover); color: var(--text); }
+
+.structure-crumb--current {
+  color: var(--text);
+  font-weight: 700;
+  cursor: default;
+}
+
+.structure-crumb--current:hover { background: none; }
+
+.structure-crumb-sep { color: var(--text-muted); }
+
+/* Sub-pages already carry their own .crud-page padding; cancel the
+   top padding so the breadcrumb sits directly above the content. */
+.structure-page .crud-page { padding-top: 0; }

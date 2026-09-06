@@ -17,7 +17,7 @@ const EMPTY_FORM = {
   capaciteMaximum: "",
 }
 
-function CasePage() {
+function CasePage({ filterZoneId } = {}) {
   const role = useSelector((state) => state.auth.role)
   const isAdmin = role === "admin"
   const [cases, setCases] = useState([])
@@ -60,11 +60,15 @@ function CasePage() {
     setEditId(null)
     setForm({
       ...EMPTY_FORM,
-      zoneId: zones[0]?.zoneId ?? "",
+      zoneId: filterZoneId ?? zones[0]?.zoneId ?? "",
     })
     setShowForm(true)
     setError("")
   }
+
+  const visibleCases = filterZoneId
+    ? cases.filter(c => Number(c.zoneId) === Number(filterZoneId))
+    : cases
 
   function openEdit(storageCase) {
     setEditId(storageCase.caseId)
@@ -139,17 +143,17 @@ function CasePage() {
 
   async function handleDelete(id) {
     if (!window.confirm(
-      "Supprimer cette Case ? La suppression sera refusée si elle possède un historique de mouvements."
+      "Supprimer cette Case ? Si elle contient un historique de mouvements, ceux-ci seront automatiquement archivés (avec la date du jour) plutôt que perdus."
     )) {
       return
     }
 
     try {
       setError("")
-      await deleteCase(id)
-      setSuccess("Case supprimée.")
+      const result = await deleteCase(id)
+      setSuccess(result?.message || "Case supprimée.")
       await load()
-      setTimeout(() => setSuccess(""), 3000)
+      setTimeout(() => setSuccess(""), 6000)
     } catch (err) {
       setError(err.message || "Échec de la suppression.")
     }
@@ -165,7 +169,7 @@ function CasePage() {
     return <div className="crud-loading">Chargement des Cases…</div>
   }
 
-  const paginatedCases = cases.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+  const paginatedCases = visibleCases.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
   return (
     <div className="crud-page">
@@ -173,7 +177,7 @@ function CasePage() {
         <div>
           <h1>Cases</h1>
           <p className="crud-subtitle">
-            {cases.length} Case{cases.length !== 1 ? "s" : ""} dans le système
+            {visibleCases.length} Case{visibleCases.length !== 1 ? "s" : ""} dans le système
           </p>
         </div>
         {isAdmin && (
@@ -251,7 +255,7 @@ function CasePage() {
         </form>
       )}
 
-      {cases.length === 0 && !loading ? (
+      {visibleCases.length === 0 && !loading ? (
         <p className="crud-empty">
           Aucune Case. Cliquez sur <strong>+ Ajouter</strong> pour commencer.
         </p>
@@ -344,7 +348,7 @@ function CasePage() {
           </table>
           <Pagination
             currentPage={currentPage}
-            totalItems={cases.length}
+            totalItems={visibleCases.length}
             itemsPerPage={itemsPerPage}
             onPageChange={setCurrentPage}
           />

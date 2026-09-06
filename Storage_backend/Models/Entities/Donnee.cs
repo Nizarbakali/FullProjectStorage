@@ -18,6 +18,12 @@ public partial class Donnee
 
     public string Source { get; set; } = "Manuel";
 
+    // Snapshot preserved when the linked Case is deleted, or unlinked from
+    // this movement's Article, so the movement stays readable afterward
+    // instead of silently losing where it used to be.
+    public string? AncienEmplacement { get; set; }
+    public DateOnly? DetacheLe { get; set; }
+
     public virtual Article Article { get; set; } = null!;
 
     public virtual Case? Case { get; set; }

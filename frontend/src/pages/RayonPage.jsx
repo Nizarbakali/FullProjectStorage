@@ -6,7 +6,7 @@ import "./CrudPage.css"
 
 const EMPTY_FORM = { magasinId: "", codeRayon: "", nomRayon: "", actif: true }
 
-function RayonPage() {
+function RayonPage({ filterMagasinId, onDrill } = {}) {
   const role = useSelector((state) => state.auth.role)
   const isAdmin = role === "admin"
   const [rayons,   setRayons]   = useState([])
@@ -41,9 +41,13 @@ function RayonPage() {
 
   function openAdd() {
     setEditId(null)
-    setForm({ ...EMPTY_FORM, magasinId: magasins[0]?.magasinId ?? "" })
+    setForm({ ...EMPTY_FORM, magasinId: filterMagasinId ?? magasins[0]?.magasinId ?? "" })
     setShowForm(true); setError("")
   }
+
+  const visibleRayons = filterMagasinId
+    ? rayons.filter(r => Number(r.magasinId) === Number(filterMagasinId))
+    : rayons
 
   function openEdit(r) {
     setEditId(r.rayonId)
@@ -92,23 +96,14 @@ function RayonPage() {
 
   if (loading && rayons.length === 0) return <div className="crud-loading">Chargement des rayons…</div>
 
-  const paginatedRayons = rayons.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+  const paginatedRayons = visibleRayons.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
   return (
-    <div 
-      className="crud-page"
-      style={{
-        /* nizar2 - Insérez votre lien d'image entre les guillemets simples ci-dessous */
-        backgroundImage: "url('')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundAttachment: "fixed"
-      }}
-    >
+    <div className="crud-page">
       <div className="crud-header">
         <div>
           <h1>Rayons</h1>
-          <p className="crud-subtitle">{rayons.length} rayon{rayons.length !== 1 ? "s" : ""} dans le système</p>
+          <p className="crud-subtitle">{visibleRayons.length} rayon{visibleRayons.length !== 1 ? "s" : ""} dans le système</p>
         </div>
         {isAdmin && (
           <button className="btn-primary" onClick={showForm ? cancelForm : openAdd}>
@@ -153,7 +148,7 @@ function RayonPage() {
         </form>
       )}
 
-      {rayons.length === 0 && !loading ? (
+      {visibleRayons.length === 0 && !loading ? (
         <p className="crud-empty">Aucun rayon. Cliquez sur <strong>+ Ajouter</strong> pour commencer.</p>
       ) : (
         <div className="table-wrap">
@@ -162,10 +157,11 @@ function RayonPage() {
               <tr>
                 <th>Code</th>
                 <th>Nom</th>
-                <th>Magasin</th>
+                {!filterMagasinId && <th>Magasin</th>}
                 <th>Zones</th>
                 <th>Statut</th>
                 <th></th>
+                {onDrill && <th></th>}
               </tr>
             </thead>
             <tbody style={{ opacity: loading ? 0.5 : 1 }}>
@@ -173,7 +169,7 @@ function RayonPage() {
                 <tr key={r.rayonId}>
                   <td className="td-bold">{r.codeRayon}</td>
                   <td>{r.nomRayon || <span className="td-muted">—</span>}</td>
-                  <td><span className="badge badge--blue">{r.codeMagasin}</span></td>
+                  {!filterMagasinId && <td><span className="badge badge--blue">{r.codeMagasin}</span></td>}
                   <td>{r.zonesCount}</td>
                   <td>
                     <span className={`badge badge--${r.actif ? "green" : "red"}`}>
@@ -188,13 +184,18 @@ function RayonPage() {
                       </>
                     )}
                   </td>
+                  {onDrill && (
+                    <td className="td-actions">
+                      <button type="button" className="btn-edit" onClick={() => onDrill(r)}>Zones →</button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
           </table>
           <Pagination
             currentPage={currentPage}
-            totalItems={rayons.length}
+            totalItems={visibleRayons.length}
             itemsPerPage={itemsPerPage}
             onPageChange={setCurrentPage}
           />

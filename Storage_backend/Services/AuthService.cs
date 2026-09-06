@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -23,13 +24,19 @@ public class AuthService : IAuthService
 
     public async Task<LoginResponseDto?> LoginAsync(LoginRequestDto request)
     {
-        var hash = HashPassword(request.Password);
-
         var user = await _db.AppUsers.FirstOrDefaultAsync(u =>
-            u.Username.ToLower() == request.Username.ToLower() &&
-            u.PasswordHash == hash);
+            u.Username.ToLower() == request.Username.ToLower());
 
-        if (user == null) return null;
+        if (user == null || !VerifyPassword(request.Password, user.PasswordHash))
+            return null;
+
+        // Accounts created before the PBKDF2 migration still carry a legacy
+        // unsalted SHA-256 hash; upgrade it transparently on next successful login.
+        if (IsLegacyHash(user.PasswordHash))
+        {
+            user.PasswordHash = HashPassword(request.Password);
+            await _db.SaveChangesAsync();
+        }
 
         var token = GenerateToken(user.Username, user.Role);
         return new LoginResponseDto(token, user.Role, user.Username);
@@ -62,11 +69,79 @@ public class AuthService : IAuthService
     }
 
     // ── Password helpers ───────────────────────────────────────────────────────
+    //
+    // Format: "PBKDF2.<iterations>.<base64 salt>.<base64 hash>". Accounts created
+    // before this migration store a bare hex SHA-256 hash instead (no prefix) —
+    // VerifyPassword still checks those, and LoginAsync rehashes into the new
+    // format the next time that account logs in successfully.
+
+    private const string Pbkdf2Prefix = "PBKDF2";
+    private const int Pbkdf2Iterations = 100_000;
+    private const int Pbkdf2SaltSize = 16;
+    private const int Pbkdf2HashSize = 32;
 
     public static string HashPassword(string password)
     {
-        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(password));
-        return Convert.ToHexString(bytes).ToLower();
+        var salt = RandomNumberGenerator.GetBytes(Pbkdf2SaltSize);
+        var hash = Rfc2898DeriveBytes.Pbkdf2(
+            Encoding.UTF8.GetBytes(password),
+            salt,
+            Pbkdf2Iterations,
+            HashAlgorithmName.SHA256,
+            Pbkdf2HashSize);
+
+        return string.Join(
+            '.',
+            Pbkdf2Prefix,
+            Pbkdf2Iterations.ToString(CultureInfo.InvariantCulture),
+            Convert.ToBase64String(salt),
+            Convert.ToBase64String(hash));
+    }
+
+    private static bool IsLegacyHash(string storedHash) =>
+        !storedHash.StartsWith(Pbkdf2Prefix + ".", StringComparison.Ordinal);
+
+    private static bool VerifyPassword(string password, string storedHash)
+    {
+        if (IsLegacyHash(storedHash))
+        {
+            var legacyHash = Convert.ToHexString(
+                SHA256.HashData(Encoding.UTF8.GetBytes(password))).ToLower();
+
+            return CryptographicOperations.FixedTimeEquals(
+                Encoding.UTF8.GetBytes(legacyHash),
+                Encoding.UTF8.GetBytes(storedHash));
+        }
+
+        var parts = storedHash.Split('.');
+
+        if (parts.Length != 4 ||
+            !int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var iterations))
+        {
+            return false;
+        }
+
+        byte[] salt;
+        byte[] expected;
+
+        try
+        {
+            salt = Convert.FromBase64String(parts[2]);
+            expected = Convert.FromBase64String(parts[3]);
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
+
+        var actual = Rfc2898DeriveBytes.Pbkdf2(
+            Encoding.UTF8.GetBytes(password),
+            salt,
+            iterations,
+            HashAlgorithmName.SHA256,
+            expected.Length);
+
+        return CryptographicOperations.FixedTimeEquals(actual, expected);
     }
 
     // ── Token generation ───────────────────────────────────────────────────────
