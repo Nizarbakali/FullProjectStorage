@@ -143,17 +143,17 @@ function CasePage({ filterZoneId } = {}) {
 
   async function handleDelete(id) {
     if (!window.confirm(
-      "Supprimer cette Case ? La suppression sera refusée si elle possède un historique de mouvements."
+      "Supprimer cette Case ? Si elle contient un historique de mouvements, ceux-ci seront automatiquement archivés (avec la date du jour) plutôt que perdus."
     )) {
       return
     }
 
     try {
       setError("")
-      await deleteCase(id)
-      setSuccess("Case supprimée.")
+      const result = await deleteCase(id)
+      setSuccess(result?.message || "Case supprimée.")
       await load()
-      setTimeout(() => setSuccess(""), 3000)
+      setTimeout(() => setSuccess(""), 6000)
     } catch (err) {
       setError(err.message || "Échec de la suppression.")
     }

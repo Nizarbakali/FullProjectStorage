@@ -8,5 +8,5 @@ public interface ICaseService
     Task<CaseDto?>             GetByIdAsync(int id);
     Task<CaseDto>              CreateAsync(CreateCaseDto dto);
     Task<CaseDto?>             UpdateAsync(int id, UpdateCaseDto dto);
-    Task<bool>                 DeleteAsync(int id);
+    Task<DeleteResultDto?>     DeleteAsync(int id);
 }

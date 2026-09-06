@@ -1425,6 +1425,8 @@ public class DonneeService : IDonneeService
                 movement.Source)
                     ? "Legacy"
                     : movement.Source,
+            AncienEmplacement = movement.AncienEmplacement,
+            DetacheLe = movement.DetacheLe,
             StockArticleCase =
                 articleCaseStock,
             QuantiteTotaleCase =

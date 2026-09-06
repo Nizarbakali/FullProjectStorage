@@ -9,6 +9,7 @@ public class ArticleDto
     public string? CodeCase { get; set; }
     public string? FullLocation { get; set; }
     public bool Actif { get; set; }
+    public DateOnly? DesactiveLe { get; set; }
     public int TotalQuantiteEntrer { get; set; }
     public int TotalQuantiteSortie { get; set; }
     public int StockNet { get; set; }

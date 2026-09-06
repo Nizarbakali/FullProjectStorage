@@ -177,6 +177,9 @@ public partial class StorageDbContext : DbContext
                 .IsUnicode(false)
                 .HasDefaultValue("Manuel");
 
+            entity.Property(e => e.AncienEmplacement)
+                .HasMaxLength(250);
+
             entity.HasOne(e => e.Article)
                 .WithMany(a => a.Donnees)
                 .HasForeignKey(e => e.ArticleId)

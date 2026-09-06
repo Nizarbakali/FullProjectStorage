@@ -14,6 +14,10 @@ public partial class Article
 
     public bool Actif { get; set; }
 
+    // Set when an Article with movement history is "deleted": it is
+    // deactivated instead, so the history stays valid under the same ArticleId.
+    public DateOnly? DesactiveLe { get; set; }
+
     public virtual ICollection<Case> Cases { get; set; }
         = new List<Case>();
 

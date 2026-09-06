@@ -12,6 +12,8 @@ public class DonneeRowDto
     public int QuantiteEntrer { get; set; }
     public int QuantiteSortie { get; set; }
     public string Source { get; set; } = string.Empty;
+    public string? AncienEmplacement { get; set; }
+    public DateOnly? DetacheLe { get; set; }
     public int StockArticleCase { get; set; }
     public int QuantiteTotaleCase { get; set; }
     public int CapaciteMaximumCase { get; set; }

@@ -53,8 +53,10 @@ var connectionString =
 if (string.IsNullOrWhiteSpace(connectionString))
 {
     throw new InvalidOperationException(
-        "The connection string 'DefaultConnection' " +
-        "was not found inside appsettings.json.");
+        "ConnectionStrings:DefaultConnection is not configured. Set it via " +
+        "'dotnet user-secrets set \"ConnectionStrings:DefaultConnection\" \"...\"' " +
+        "in Development, or the ConnectionStrings__DefaultConnection environment " +
+        "variable elsewhere. See Storage_backend/README.md.");
 }
 
 builder.Services.AddDbContext<StorageDbContext>(
@@ -65,8 +67,14 @@ builder.Services.AddDbContext<StorageDbContext>(
 // JWT Authentication
 // ----------------------------------------------------
 var jwtSection = builder.Configuration.GetSection("Jwt");
-var jwtKey = jwtSection["Key"]
-    ?? throw new InvalidOperationException("Jwt:Key is missing from appsettings.json.");
+var jwtKey = jwtSection["Key"];
+
+if (string.IsNullOrWhiteSpace(jwtKey))
+{
+    throw new InvalidOperationException(
+        "Jwt:Key is not configured. Set it via 'dotnet user-secrets set \"Jwt:Key\" \"...\"' " +
+        "in Development, or the Jwt__Key environment variable elsewhere. See Storage_backend/README.md.");
+}
 
 builder.Services
     .AddAuthentication(options =>

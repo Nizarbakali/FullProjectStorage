@@ -22,6 +22,12 @@ const EMPTY_FORM = {
   caseId: "",
 }
 
+function formatDateFr(dateOnly) {
+  if (!dateOnly) return ""
+  const [year, month, day] = dateOnly.split("-")
+  return `${day}/${month}/${year}`
+}
+
 function formatLocationString(locationStr) {
   if (!locationStr) return locationStr;
   const parts = locationStr.split(" | ");
@@ -245,17 +251,17 @@ function ArticlePage() {
 
   async function handleDelete(id) {
     if (!window.confirm(
-      "Supprimer cet article ? La suppression sera refusée s'il possède un historique de mouvements."
+      "Supprimer cet article ? S'il possède un historique de mouvements, il sera désactivé au lieu d'être supprimé, afin de conserver cet historique."
     )) {
       return
     }
 
     try {
       setError("")
-      await deleteArticle(id)
-      setSuccess("Article supprimé.")
+      const result = await deleteArticle(id)
+      setSuccess(result?.message || "Article supprimé.")
       await load()
-      setTimeout(() => setSuccess(""), 3000)
+      setTimeout(() => setSuccess(""), 7000)
     } catch (err) {
       setError(err.message || "Échec de la suppression.")
     }
@@ -506,7 +512,14 @@ function ArticlePage() {
                       {formatLocationString(article.fullLocation) || <span className="td-muted">—</span>}
                     </td>
                     <td>
-                      <span className={`badge badge--${article.actif ? "green" : "red"}`}>
+                      <span
+                        className={`badge badge--${article.actif ? "green" : "red"}`}
+                        title={
+                          !article.actif && article.desactiveLe
+                            ? `Désactivé automatiquement le ${formatDateFr(article.desactiveLe)} (historique de mouvements conservé)`
+                            : undefined
+                        }
+                      >
                         {article.actif ? "Actif" : "Inactif"}
                       </span>
                     </td>

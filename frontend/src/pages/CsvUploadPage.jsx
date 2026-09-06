@@ -269,6 +269,12 @@ function CsvUploadPage() {
     return dateOnly?.slice(0, 7) ?? ""
   }
 
+  function formatDateFr(dateOnly) {
+    if (!dateOnly) return ""
+    const [year, month, day] = dateOnly.split("-")
+    return `${day}/${month}/${year}`
+  }
+
   function formatNumber(value) {
     return Number(value ?? 0).toLocaleString("fr-FR")
   }
@@ -587,7 +593,16 @@ function CsvUploadPage() {
                       <span className="cell-secondary">{movement.nomArticle}</span>
                     </td>
                     <td className="location-cell">
-                      {movement.fullLocation || (
+                      {movement.fullLocation ? (
+                        movement.fullLocation
+                      ) : movement.ancienEmplacement ? (
+                        <>
+                          <span className="badge badge--orange">Case supprimée</span>
+                          <span className="cell-secondary">
+                            {movement.ancienEmplacement} · archivé le {formatDateFr(movement.detacheLe)}
+                          </span>
+                        </>
+                      ) : (
                         <span className="badge badge--orange">Legacy non attribué</span>
                       )}
                     </td>

@@ -82,9 +82,8 @@ public class CasesController : ControllerBase
     {
         try
         {
-            return await _service.DeleteAsync(id)
-                ? NoContent()
-                : NotFound();
+            var result = await _service.DeleteAsync(id);
+            return result == null ? NotFound() : Ok(result);
         }
         catch (InvalidOperationException exception)
         {
