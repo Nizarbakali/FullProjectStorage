@@ -17,7 +17,7 @@ const EMPTY_FORM = {
   actif: true,
 }
 
-function MagasinPage() {
+function MagasinPage({ onDrill } = {}) {
   const role = useSelector((state) => state.auth.role)
   const isAdmin = role === "admin"
   const [magasins, setMagasins] = useState([])
@@ -351,6 +351,7 @@ function MagasinPage() {
                 <th>Rayons</th>
                 <th>Statut</th>
                 <th>Actions</th>
+                {onDrill && <th></th>}
               </tr>
             </thead>
 
@@ -424,6 +425,17 @@ function MagasinPage() {
                       </>
                     )}
                   </td>
+                  {onDrill && (
+                    <td className="td-actions">
+                      <button
+                        type="button"
+                        className="btn-edit"
+                        onClick={() => onDrill(magasin)}
+                      >
+                        Rayons →
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

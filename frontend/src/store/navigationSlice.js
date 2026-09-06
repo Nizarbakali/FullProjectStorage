@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 const navigationSlice = createSlice({
   name: 'navigation',
   initialState: {
-    activePage: 'donnees',
+    activePage: 'dashboard',
   },
   reducers: {
     setActivePage: (state, action) => {

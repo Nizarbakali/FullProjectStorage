@@ -17,7 +17,7 @@ const EMPTY_FORM = {
   capaciteMaximum: "",
 }
 
-function CasePage() {
+function CasePage({ filterZoneId } = {}) {
   const role = useSelector((state) => state.auth.role)
   const isAdmin = role === "admin"
   const [cases, setCases] = useState([])
@@ -60,11 +60,15 @@ function CasePage() {
     setEditId(null)
     setForm({
       ...EMPTY_FORM,
-      zoneId: zones[0]?.zoneId ?? "",
+      zoneId: filterZoneId ?? zones[0]?.zoneId ?? "",
     })
     setShowForm(true)
     setError("")
   }
+
+  const visibleCases = filterZoneId
+    ? cases.filter(c => Number(c.zoneId) === Number(filterZoneId))
+    : cases
 
   function openEdit(storageCase) {
     setEditId(storageCase.caseId)
@@ -165,7 +169,7 @@ function CasePage() {
     return <div className="crud-loading">Chargement des Cases…</div>
   }
 
-  const paginatedCases = cases.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+  const paginatedCases = visibleCases.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
   return (
     <div className="crud-page">
@@ -173,7 +177,7 @@ function CasePage() {
         <div>
           <h1>Cases</h1>
           <p className="crud-subtitle">
-            {cases.length} Case{cases.length !== 1 ? "s" : ""} dans le système
+            {visibleCases.length} Case{visibleCases.length !== 1 ? "s" : ""} dans le système
           </p>
         </div>
         {isAdmin && (
@@ -251,7 +255,7 @@ function CasePage() {
         </form>
       )}
 
-      {cases.length === 0 && !loading ? (
+      {visibleCases.length === 0 && !loading ? (
         <p className="crud-empty">
           Aucune Case. Cliquez sur <strong>+ Ajouter</strong> pour commencer.
         </p>
@@ -344,7 +348,7 @@ function CasePage() {
           </table>
           <Pagination
             currentPage={currentPage}
-            totalItems={cases.length}
+            totalItems={visibleCases.length}
             itemsPerPage={itemsPerPage}
             onPageChange={setCurrentPage}
           />

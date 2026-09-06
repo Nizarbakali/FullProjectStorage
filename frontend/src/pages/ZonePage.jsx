@@ -6,7 +6,7 @@ import "./CrudPage.css"
 
 const EMPTY_FORM = { rayonId: "", codeZone: "", numeroLigne: "", actif: true }
 
-function ZonePage() {
+function ZonePage({ filterRayonId, onDrill } = {}) {
   const role = useSelector((state) => state.auth.role)
   const isAdmin = role === "admin"
   const [zones,    setZones]    = useState([])
@@ -41,9 +41,13 @@ function ZonePage() {
 
   function openAdd() {
     setEditId(null)
-    setForm({ ...EMPTY_FORM, rayonId: rayons[0]?.rayonId ?? "" })
+    setForm({ ...EMPTY_FORM, rayonId: filterRayonId ?? rayons[0]?.rayonId ?? "" })
     setShowForm(true); setError("")
   }
+
+  const visibleZones = filterRayonId
+    ? zones.filter(z => Number(z.rayonId) === Number(filterRayonId))
+    : zones
 
   function openEdit(z) {
     setEditId(z.zoneId)
@@ -97,23 +101,14 @@ function ZonePage() {
 
   if (loading && zones.length === 0) return <div className="crud-loading">Chargement des zones…</div>
 
-  const paginatedZones = zones.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+  const paginatedZones = visibleZones.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
   return (
-    <div 
-      className="crud-page"
-      style={{
-        /* nizar3 - Insérez votre lien d'image entre les guillemets simples ci-dessous */
-        backgroundImage: "url('')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundAttachment: "fixed"
-      }}
-    >
+    <div className="crud-page">
       <div className="crud-header">
         <div>
           <h1>Zones</h1>
-          <p className="crud-subtitle">{zones.length} zone{zones.length !== 1 ? "s" : ""} dans le système</p>
+          <p className="crud-subtitle">{visibleZones.length} zone{visibleZones.length !== 1 ? "s" : ""} dans le système</p>
         </div>
         {isAdmin && (
           <button className="btn-primary" onClick={showForm ? cancelForm : openAdd}>
@@ -158,7 +153,7 @@ function ZonePage() {
         </form>
       )}
 
-      {zones.length === 0 && !loading ? (
+      {visibleZones.length === 0 && !loading ? (
         <p className="crud-empty">Aucune zone. Cliquez sur <strong>+ Ajouter</strong> pour commencer.</p>
       ) : (
         <div className="table-wrap">
@@ -166,18 +161,19 @@ function ZonePage() {
             <thead>
               <tr>
                 <th>Code Zone</th>
-                <th>Rayon</th>
+                {!filterRayonId && <th>Rayon</th>}
                 <th>N° Ligne</th>
                 <th>Cases</th>
                 <th>Statut</th>
                 <th></th>
+                {onDrill && <th></th>}
               </tr>
             </thead>
             <tbody style={{ opacity: loading ? 0.5 : 1 }}>
               {paginatedZones.map(z => (
                 <tr key={z.zoneId}>
                   <td className="td-bold">{z.codeZone}</td>
-                  <td><span className="badge badge--blue">{z.codeRayon}</span></td>
+                  {!filterRayonId && <td><span className="badge badge--blue">{z.codeRayon}</span></td>}
                   <td>{z.numeroLigne ?? <span className="td-muted">—</span>}</td>
                   <td>{z.casesCount}</td>
                   <td>
@@ -193,13 +189,18 @@ function ZonePage() {
                       </>
                     )}
                   </td>
+                  {onDrill && (
+                    <td className="td-actions">
+                      <button type="button" className="btn-edit" onClick={() => onDrill(z)}>Cases →</button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
           </table>
           <Pagination
             currentPage={currentPage}
-            totalItems={zones.length}
+            totalItems={visibleZones.length}
             itemsPerPage={itemsPerPage}
             onPageChange={setCurrentPage}
           />
