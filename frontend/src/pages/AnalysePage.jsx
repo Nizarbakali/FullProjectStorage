@@ -1,36 +1,27 @@
 import { useState } from "react"
+import PageTabs from "../components/PageTabs"
 import ChartsPage from "./ChartsPage"
-import HeatmapPage from "./HeatmapPage"
 import MapPage from "./MapPage"
+import PlanView from "./analyse/PlanView"
 import "./StockPage.css"
 
 const TABS = [
-  { id: "graphiques", label: "Graphiques" },
-  { id: "heatmap", label: "Heatmap" },
-  { id: "carte", label: "Carte des sites" },
+  { id: "graphiques", label: "Graphiques", render: () => <ChartsPage /> },
+  { id: "occupation", label: "Occupation", render: () => <PlanView /> },
+  { id: "carte", label: "Carte des sites", render: () => <MapPage /> },
 ]
 
 function AnalysePage() {
   const [tab, setTab] = useState("graphiques")
+  const active = TABS.find(t => t.id === tab) ?? TABS[0]
 
   return (
     <div className="stock-page">
-      <div className="stock-tabs">
-        {TABS.map(t => (
-          <button
-            type="button"
-            key={t.id}
-            className={`stock-tab ${tab === t.id ? "stock-tab--active" : ""}`}
-            onClick={() => setTab(t.id)}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <PageTabs tabs={TABS} value={active.id} onChange={setTab} label="Vues d'analyse" />
 
-      {tab === "graphiques" && <ChartsPage />}
-      {tab === "heatmap" && <HeatmapPage />}
-      {tab === "carte" && <MapPage />}
+      <div role="tabpanel" id={`panel-${active.id}`} aria-labelledby={`tab-${active.id}`}>
+        {active.render()}
+      </div>
     </div>
   )
 }

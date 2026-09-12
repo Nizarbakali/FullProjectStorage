@@ -45,6 +45,12 @@ function RayonPage({ filterMagasinId, onDrill } = {}) {
     setShowForm(true); setError("")
   }
 
+  // Magasin imposé à la création ; en modification le select reste accessible
+  // pour pouvoir déplacer un rayon d'un magasin à l'autre.
+  const lockedMagasin = filterMagasinId && !editId
+    ? magasins.find(m => Number(m.magasinId) === Number(filterMagasinId)) ?? { codeMagasin: "Magasin courant", nomMagasin: "" }
+    : null
+
   const visibleRayons = filterMagasinId
     ? rayons.filter(r => Number(r.magasinId) === Number(filterMagasinId))
     : rayons
@@ -119,13 +125,26 @@ function RayonPage({ filterMagasinId, onDrill } = {}) {
         <form className="crud-form" onSubmit={handleSubmit}>
           <h3 className="form-title">{editId ? "Modifier le rayon" : "Nouveau rayon"}</h3>
           <div className="form-grid">
-            <label className="form-field">
-              <span>Magasin <span className="required">*</span></span>
-              <select value={form.magasinId} onChange={field("magasinId")}>
-                <option value="">— Sélectionner —</option>
-                {magasins.map(m => <option key={m.magasinId} value={m.magasinId}>{m.codeMagasin} — {m.nomMagasin}</option>)}
-              </select>
-            </label>
+            {lockedMagasin ? (
+              // Le magasin vient du fil d'Ariane : on ne le choisit pas.
+              <div className="form-field">
+                <span>Magasin</span>
+                <p className="form-static">
+                  {lockedMagasin.codeMagasin} — {lockedMagasin.nomMagasin}
+                </p>
+              </div>
+            ) : (
+              <label className="form-field">
+                <span>
+                  Magasin <span className="required">*</span>
+                  {editId && filterMagasinId && <span className="optional"> — changer pour déplacer le rayon</span>}
+                </span>
+                <select value={form.magasinId} onChange={field("magasinId")}>
+                  <option value="">— Sélectionner —</option>
+                  {magasins.map(m => <option key={m.magasinId} value={m.magasinId}>{m.codeMagasin} — {m.nomMagasin}</option>)}
+                </select>
+              </label>
+            )}
             <label className="form-field">
               <span>Code Rayon <span className="required">*</span></span>
               <input placeholder="ex: R-001" value={form.codeRayon} onChange={field("codeRayon")} />

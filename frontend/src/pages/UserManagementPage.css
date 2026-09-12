@@ -38,14 +38,14 @@
   font-weight: 500;
 }
 .um-banner--error {
-  background: rgba(239,68,68,0.12);
-  border: 1px solid rgba(239,68,68,0.3);
-  color: #fca5a5;
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+  color: var(--danger-text);
 }
 .um-banner--success {
-  background: rgba(34,197,94,0.12);
-  border: 1px solid rgba(34,197,94,0.3);
-  color: #86efac;
+  background: var(--success-bg);
+  border: 1px solid var(--success-border);
+  color: var(--success-text);
 }
 
 /* ── Buttons ────────────────────────────────────────────────────────── */
@@ -75,17 +75,17 @@
   color: var(--text, #e2e8f0);
 }
 .um-btn--edit {
-  background: rgba(99,102,241,0.15);
-  color: #818cf8;
-  border: 1px solid rgba(99,102,241,0.25);
+  background: var(--neutral-bg);
+  color: var(--neutral-text);
+  border: 1px solid var(--neutral-border);
 }
-.um-btn--edit:hover:not(:disabled) { background: rgba(99,102,241,0.25); }
+.um-btn--edit:hover:not(:disabled) { border-color: var(--neutral-text); }
 .um-btn--delete {
-  background: rgba(239,68,68,0.12);
-  color: #f87171;
-  border: 1px solid rgba(239,68,68,0.25);
+  background: var(--danger-bg);
+  color: var(--danger-text);
+  border: 1px solid var(--danger-border);
 }
-.um-btn--delete:hover:not(:disabled) { background: rgba(239,68,68,0.22); }
+.um-btn--delete:hover:not(:disabled) { border-color: var(--danger-text); }
 
 /* ── Create / Edit form ─────────────────────────────────────────────── */
 .um-form {
@@ -122,7 +122,7 @@
   gap: 0.4rem;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--text-muted);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -146,13 +146,13 @@
 .um-field input:disabled,
 .um-field select:disabled { opacity: 0.5; cursor: not-allowed; }
 .um-req { color: #f87171; }
-.um-opt { color: #475569; font-weight: 400; text-transform: none; letter-spacing: 0; }
+.um-opt { color: var(--text-muted); font-weight: 400; text-transform: none; letter-spacing: 0; }
 
 /* ── Edit modal overlay ─────────────────────────────────────────────── */
 .um-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(2,6,23,0.7);
+  background: var(--overlay-bg);
   backdrop-filter: blur(4px);
   z-index: 200;
   display: flex;
@@ -182,7 +182,7 @@
   to   { transform: translateY(0)    scale(1);    opacity: 1; }
 }
 .um-modal__name {
-  color: #818cf8;
+  color: var(--primary);
 }
 
 .um-table-wrap {
@@ -200,7 +200,7 @@
   font-size: 0.9rem;
 }
 .um-table thead tr {
-  background: rgba(15,23,42,0.8);
+  background: var(--table-head-bg);
 }
 .um-table th {
   padding: 0.85rem 1rem;
@@ -209,7 +209,7 @@
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #64748b;
+  color: var(--table-head-text);
   border-bottom: 1px solid var(--border, rgba(100,116,139,0.2));
 }
 .um-table tbody tr {
@@ -217,22 +217,23 @@
   transition: background 0.15s;
 }
 .um-table tbody tr:last-child { border-bottom: none; }
-.um-table tbody tr:hover { background: rgba(99,102,241,0.05); }
+.um-table tbody tr:hover { background: var(--table-hover); }
 .um-table td { padding: 0.85rem 1rem; color: var(--text, #e2e8f0); }
 
-.um-td--id    { color: #475569; font-size: 0.82rem; }
+.um-td--id    { color: var(--text-muted); font-size: 0.82rem; }
 .um-td--name  { font-weight: 600; }
-.um-td--date  { color: #64748b; font-size: 0.85rem; white-space: nowrap; }
-.um-td--actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.um-td--date  { color: var(--text-muted); font-size: 0.85rem; white-space: nowrap; }
+.um-td--actions { white-space: nowrap; }
+.um-td--actions > .um-btn + .um-btn { margin-left: 0.5rem; }
 
-.um-row--self { background: rgba(99,102,241,0.04); }
+.um-row--self { background: var(--neutral-bg); }
 
 .um-self-badge {
   margin-left: 0.5rem;
   font-size: 0.7rem;
   font-weight: 700;
-  background: rgba(99,102,241,0.2);
-  color: #818cf8;
+  background: var(--neutral-bg);
+  color: var(--neutral-text);
   border-radius: 999px;
   padding: 0.1rem 0.5rem;
   letter-spacing: 0.03em;
@@ -247,14 +248,14 @@
   white-space: nowrap;
 }
 .um-role-badge--admin {
-  background: var(--primary-gradient);
-  color: #fff;
-  box-shadow: 0 4px 15px rgba(217, 70, 239, 0.3);
+  background: var(--danger-bg);
+  color: var(--danger-text);
+  border: 1px solid var(--danger-border);
 }
 .um-role-badge--user {
-  background: rgba(14,165,233,0.15);
-  color: #38bdf8;
-  border: 1px solid rgba(14,165,233,0.3);
+  background: var(--badge-blue-bg);
+  color: var(--badge-blue-text);
+  border: 1px solid var(--badge-blue-border);
 }
 
 /* ── Loading / empty ────────────────────────────────────────────────── */
@@ -262,6 +263,6 @@
 .um-empty {
   text-align: center;
   padding: 3rem;
-  color: #475569;
+  color: var(--text-muted);
   font-style: italic;
 }

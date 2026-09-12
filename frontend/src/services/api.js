@@ -232,23 +232,36 @@ export async function deleteMonthlyData(id) {
     headers: authHeaders()
   }))
 }
-export async function scanCsv(file) {
-  const formData = new FormData()
-  formData.append("file", file)
-  return handleResponse(await fetch(`${API_URL}/api/MonthlyData/scan`, {
-    method: "POST",
-    headers: authHeaders(),
-    body: formData
+// Vide les données mensuelles et les articles. Magasins, rayons, zones,
+// cases et comptes utilisateurs sont conservés.
+export async function purgeAllData() {
+  return handleResponse(await fetch(`${API_URL}/api/MonthlyData/purge`, {
+    method: "DELETE",
+    headers: authHeaders()
   }))
 }
-export async function uploadCsv(file) {
+
+// replace=true : le serveur purge les mouvements et les articles avant
+// d'écrire. L'infrastructure (magasins, rayons, zones, cases) est conservée.
+export async function scanCsv(file, replace = false) {
   const formData = new FormData()
   formData.append("file", file)
-  return handleResponse(await fetch(`${API_URL}/api/MonthlyData/upload`, {
-    method: "POST",
-    headers: authHeaders(),
-    body: formData
-  }))
+  return handleResponse(await fetch(
+    `${API_URL}/api/MonthlyData/scan?replace=${replace}`, {
+      method: "POST",
+      headers: authHeaders(),
+      body: formData
+    }))
+}
+export async function uploadCsv(file, replace = false) {
+  const formData = new FormData()
+  formData.append("file", file)
+  return handleResponse(await fetch(
+    `${API_URL}/api/MonthlyData/upload?replace=${replace}`, {
+      method: "POST",
+      headers: authHeaders(),
+      body: formData
+    }))
 }
 
 export async function forecastNextYear(articleName) {

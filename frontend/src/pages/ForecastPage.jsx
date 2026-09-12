@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react"
 import Chart from "react-apexcharts"
+import { useChartTheme } from "../theme/useChartTheme"
 import { getMonthlyData, forecastNextYear } from "../services/api"
 import "./ChartsPage.css"
 
 const MONTHS = ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aoû", "Sep", "Oct", "Nov", "Déc"]
 
 function ForecastPage() {
+  const chartColors = useChartTheme()
   const [articleNames, setArticleNames] = useState([])
   const [articleName, setArticleName] = useState("")
   const [forecast, setForecast] = useState(null)
@@ -35,13 +37,13 @@ function ForecastPage() {
   const annualTotalEntrer = useMemo(() => monthlyEntrer.reduce((total, value) => total + value, 0), [monthlyEntrer])
   const annualTotalSortie = useMemo(() => monthlySortie.reduce((total, value) => total + value, 0), [monthlySortie])
   const chartOptions = {
-    chart: { type: "area", toolbar: { show: false }, zoom: { enabled: false }, background: "transparent", foreColor: "#94a3b8" },
+    chart: { type: "area", toolbar: { show: false }, zoom: { enabled: false }, background: "transparent", foreColor: chartColors.axis },
     dataLabels: { enabled: false }, stroke: { curve: "smooth", width: 3 }, colors: ["#38bdf8", "#f43f5e"],
-    fill: { type: "gradient", gradient: { shade: "dark", type: "vertical", opacityFrom: 0.6, opacityTo: 0.1, stops: [0, 90, 100] } },
+    fill: { type: "gradient", gradient: { shade: chartColors.tooltip, type: "vertical", opacityFrom: 0.6, opacityTo: 0.1, stops: [0, 90, 100] } },
     legend: { show: false },
-    xaxis: { categories: MONTHS, labels: { style: { colors: "#94a3b8", fontSize: "12px" } }, axisBorder: { show: false }, axisTicks: { show: false } },
-    yaxis: { min: 0, labels: { style: { colors: "#94a3b8" }, formatter: value => Math.round(value).toLocaleString() } },
-    grid: { borderColor: "#1e293b", strokeDashArray: 4 }, tooltip: { theme: "dark", y: { formatter: value => `${Math.round(value).toLocaleString()} unités` } }
+    xaxis: { categories: MONTHS, labels: { style: { colors: chartColors.axis, fontSize: "12px" } }, axisBorder: { show: false }, axisTicks: { show: false } },
+    yaxis: { min: 0, labels: { style: { colors: chartColors.axis }, formatter: value => Math.round(value).toLocaleString() } },
+    grid: { borderColor: chartColors.grid, strokeDashArray: 4 }, tooltip: { theme: chartColors.tooltip, y: { formatter: value => `${Math.round(value).toLocaleString()} unités` } }
   }
 
   return <div className="prediction-section" style={{ marginTop: '3rem' }}>

@@ -70,6 +70,13 @@ function CasePage({ filterZoneId } = {}) {
     ? cases.filter(c => Number(c.zoneId) === Number(filterZoneId))
     : cases
 
+  // Zone imposée : uniquement à la création, et seulement si on navigue dans
+  // une zone précise. En modification le select reste disponible pour pouvoir
+  // déplacer une Case d'une zone à l'autre.
+  const lockedZone = filterZoneId && editId === null
+    ? zones.find(z => Number(z.zoneId) === Number(filterZoneId)) ?? { codeZone: "Zone courante" }
+    : null
+
   function openEdit(storageCase) {
     setEditId(storageCase.caseId)
     setForm({
@@ -200,17 +207,35 @@ function CasePage({ filterZoneId } = {}) {
           </h3>
 
           <div className="form-grid">
-            <label className="form-field">
-              <span>Zone <span className="required">*</span></span>
-              <select value={form.zoneId} onChange={field("zoneId")}>
-                <option value="">— Sélectionner —</option>
-                {zones.map(zone => (
-                  <option key={zone.zoneId} value={zone.zoneId}>
-                    {zone.codeZone} ({zone.codeRayon})
-                  </option>
-                ))}
-              </select>
-            </label>
+            {lockedZone ? (
+              // On crée depuis une zone précise : elle est imposée par le fil
+              // d'Ariane, pas choisie. Proposer un select ici permettrait de
+              // créer une Case qui disparaîtrait aussitôt de la liste filtrée.
+              <div className="form-field">
+                <span>Zone</span>
+                <p className="form-static">
+                  {lockedZone.codeZone}
+                  {lockedZone.codeRayon ? ` (${lockedZone.codeRayon})` : ""}
+                </p>
+              </div>
+            ) : (
+              <label className="form-field">
+                <span>
+                  Zone <span className="required">*</span>
+                  {editId !== null && filterZoneId && (
+                    <span className="optional"> — changer pour déplacer la Case</span>
+                  )}
+                </span>
+                <select value={form.zoneId} onChange={field("zoneId")}>
+                  <option value="">— Sélectionner —</option>
+                  {zones.map(zone => (
+                    <option key={zone.zoneId} value={zone.zoneId}>
+                      {zone.codeZone} ({zone.codeRayon})
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
 
             <label className="form-field">
               <span>Code Case <span className="required">*</span></span>

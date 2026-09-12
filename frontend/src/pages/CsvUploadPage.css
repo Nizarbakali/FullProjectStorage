@@ -156,6 +156,107 @@
 }
 .btn-upload:disabled { opacity: 0.4; cursor: not-allowed; }
 
+/* Import destructif : le bouton doit se distinguer de l'import normal. */
+.btn-upload--danger {
+  background: linear-gradient(135deg, #dc2626, #f97316);
+  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+}
+
+.btn-upload--danger:hover:not(:disabled) {
+  box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
+}
+
+/* ── Zone de danger ───────────────────────────────────────────────── */
+.danger-zone {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+  border-radius: 14px;
+}
+
+.danger-zone__text { flex: 1 1 20rem; }
+
+.danger-zone__text h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--danger-text);
+}
+
+.danger-zone__text p {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.btn-danger-zone {
+  flex-shrink: 0;
+  padding: 0.7rem 1.5rem;
+  background: linear-gradient(135deg, #dc2626, #f97316);
+  color: #fff;
+  font-size: 0.92rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.25);
+}
+
+.btn-danger-zone:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(220, 38, 38, 0.35);
+}
+
+.btn-danger-zone:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Bascule « remplacer tout » ───────────────────────────────────── */
+.replace-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1.25rem;
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.replace-toggle input {
+  margin-top: 0.15rem;
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: #dc2626;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.replace-toggle__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.replace-toggle__text strong {
+  color: var(--danger-text);
+  font-size: 0.93rem;
+}
+
+.replace-toggle__text em {
+  color: var(--text-muted);
+  font-style: normal;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
 .btn-secondary {
   padding: 0.65rem 1.4rem;
   background: var(--card-bg);
@@ -347,6 +448,137 @@
 .movement-search:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.btn-export {
+  padding: 0.65rem 1.2rem;
+  background: var(--input-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.btn-export:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.btn-export:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-export:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Analyse préalable et aperçu ──────────────────────────────────── */
+.csv-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+
+.btn-scan {
+  padding: 0.8rem 1.5rem;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.btn-scan:hover:not(:disabled) { background: var(--primary-light); transform: translateY(-2px); }
+.btn-scan:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.scan-panel {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  background: var(--card-bg);
+  border: 1px solid var(--primary);
+  border-radius: 12px;
+}
+
+.scan-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.scan-panel__head h3 { margin: 0; font-size: 1rem; }
+
+.scan-notes {
+  margin: 0.9rem 0;
+  padding-left: 1.1rem;
+  color: var(--text-muted);
+  font-size: 0.84rem;
+}
+
+.scan-notes li { margin-bottom: 0.25rem; }
+
+/* Avant / après : la transformation doit se lire d'un coup d'œil. */
+.cell-before {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.cell-after {
+  color: var(--badge-green-text);
+  font-weight: 700;
+}
+
+/* ── Menu d'export ───────────────────────────────────────────────── */
+.export-menu { position: relative; }
+
+.export-menu__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+}
+
+.export-menu__list {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  z-index: 11;
+  min-width: 290px;
+  display: flex;
+  flex-direction: column;
+  padding: 0.35rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+
+.export-menu__list button {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.6rem 0.7rem;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  text-align: left;
+  font: inherit;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.export-menu__list button:hover { background: var(--table-hover); }
+
+.export-menu__list strong { font-size: 0.9rem; font-weight: 600; }
+
+.export-menu__list span {
+  font-size: 0.78rem;
+  color: var(--text-muted);
 }
 
 .movement-table-wrap {

@@ -1,0 +1,226 @@
+/* =========================================================
+   Analyse — styles partagés de la vue Occupation
+   (Occupation)
+   ========================================================= */
+
+.vz {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 3.5rem;
+  color: var(--text);
+  animation: vzFade 0.4s ease-out;
+}
+
+@keyframes vzFade {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+.vz-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.75rem;
+}
+
+.vz-head h1 {
+  margin: 0 0 0.35rem;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.vz-head p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.98rem;
+  max-width: 60ch;
+}
+
+.vz-head__actions {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* ── Controls ───────────────────────────────────────────── */
+.vz-btn {
+  padding: 0.5rem 0.9rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.vz-btn:hover { color: var(--text); border-color: var(--primary); }
+
+/* ── Banners / states ───────────────────────────────────── */
+.vz-error {
+  padding: 1rem 1.25rem;
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+  color: var(--danger-text);
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+.vz-note {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin: 0.75rem 0 0;
+  line-height: 1.55;
+}
+
+.vz-empty {
+  padding: 2.5rem;
+  text-align: center;
+  color: var(--text-muted);
+  background: var(--card-bg);
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+}
+
+/* ── KPI rail ───────────────────────────────────────────── */
+.vz-rail {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.9rem;
+  margin-bottom: 1.75rem;
+}
+
+.vz-stat {
+  padding: 1rem 1.1rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.vz-stat__label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.vz-stat__value {
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.vz-stat__value small {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.vz-stat__hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.vz-stat__hint--danger { color: var(--danger-text); }
+.vz-stat__hint--warn { color: #eab308; }
+.vz-stat__hint--good { color: var(--success-text); }
+
+/* ── Card ───────────────────────────────────────────────── */
+.vz-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 10px 40px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  margin-bottom: 1.75rem;
+}
+
+.vz-card__head {
+  padding: 1.3rem 1.6rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent);
+}
+
+.vz-card__head h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.vz-card__head p {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  max-width: 62ch;
+}
+
+.vz-card__body {
+  padding: 1.4rem 1.6rem;
+}
+
+/* ── Legend ─────────────────────────────────────────────── */
+.vz-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  align-items: center;
+}
+
+.vz-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.vz-legend i {
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   Detail panel (shared with Occupation drill)
+   ========================================================= */
+.vz-detail {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.8rem;
+}
+
+.vz-detail > div {
+  padding: 0.8rem 0.9rem;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.vz-detail span {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.vz-detail strong { font-size: 1.15rem; font-weight: 800; }

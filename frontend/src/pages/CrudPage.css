@@ -88,7 +88,7 @@
 
 .btn-delete {
   padding: 0.35rem 0.85rem;
-  background: rgba(225, 29, 72, 0.05);
+  background: var(--danger-bg);
   color: var(--danger-text);
   border: 1px solid var(--danger-border);
   border-radius: 6px;
@@ -98,9 +98,7 @@
 }
 
 .btn-delete:hover {
-  background: var(--danger-bg);
-  color: #ffe4e6;
-  border-color: rgba(225, 29, 72, 0.6);
+  border-color: var(--danger-text);
   transform: translateY(-1px);
 }
 .btn-delete:active {
@@ -109,9 +107,9 @@
 
 .btn-edit {
   padding: 0.35rem 0.85rem;
-  background: rgba(99, 102, 241, 0.05);
-  color: var(--primary);
-  border: 1px solid rgba(99, 102, 241, 0.4);
+  background: var(--neutral-bg);
+  color: var(--neutral-text);
+  border: 1px solid var(--neutral-border);
   border-radius: 6px;
   font-size: 0.8rem;
   cursor: pointer;
@@ -119,9 +117,7 @@
 }
 
 .btn-edit:hover {
-  background: var(--primary);
-  color: #fff;
-  box-shadow: 0 4px 12px var(--primary-light);
+  border-color: var(--neutral-text);
   transform: translateY(-1px);
 }
 .btn-edit:active {
@@ -141,10 +137,10 @@
 .btn-secondary-sm:hover { background: var(--table-hover); }
 
 .td-actions {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: nowrap;
+  white-space: nowrap;
 }
+
+.td-actions > * + * { margin-left: 0.5rem; }
 
 .form-actions {
   display: flex;
@@ -152,6 +148,19 @@
   margin-top: 2rem;
   justify-content: flex-end;
   align-items: center;
+}
+
+/* Champ en lecture seule : valeur imposée par le contexte de navigation
+   (le parent dans la hiérarchie magasin › rayon › zone › case). */
+.form-static {
+  margin: 0;
+  padding: 0.65rem 0.85rem;
+  background: var(--input-bg);
+  border: 1px dashed var(--input-border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .form-field--checkbox {
@@ -307,8 +316,8 @@
 }
 
 .crud-table th {
-  background: rgba(0, 0, 0, 0.15);
-  color: var(--text-muted);
+  background: var(--table-head-bg);
+  color: var(--table-head-text);
   text-align: left;
   padding: 1rem 1.2rem;
   font-size: 0.75rem;
@@ -326,9 +335,8 @@
 }
 
 .crud-table tbody tr { transition: all 0.2s ease; }
-.crud-table tbody tr:hover { 
+.crud-table tbody tr:hover {
   background: var(--table-hover);
-  transform: scale(1.002);
 }
 .crud-table tbody tr:last-child td { border-bottom: none; }
 

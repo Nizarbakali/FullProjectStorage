@@ -7,9 +7,16 @@ import {
   getCases,
   getMonthlyData,
   updateMonthlyData,
+  purgeAllData,
+  scanCsv,
   uploadCsv,
 } from "../services/api"
 import Pagination from "../components/Pagination"
+import {
+  exportImportableCsv,
+  exportImportableXlsx,
+  xlsxFileToImportCsv,
+} from "../utils/monthlyDataTransfer"
 import "./CsvUploadPage.css"
 import "./CrudPage.css"
 
@@ -40,6 +47,16 @@ function CsvUploadPage() {
   const [saving, setSaving] = useState(false)
   const [movementForm, setMovementForm] = useState(EMPTY_MOVEMENT)
   const [search, setSearch] = useState("")
+  const [exporting, setExporting] = useState(false)
+  const [exportMenu, setExportMenu] = useState(false)
+  const [preview, setPreview] = useState(null)
+  const [scanning, setScanning] = useState(false)
+  const [replaceAll, setReplaceAll] = useState(false)
+  // null | "replace" | "purge" — les deux actions destructives partagent le
+  // même garde-fou : une confirmation tapée à la main.
+  const [confirmMode, setConfirmMode] = useState(null)
+  const [confirmWord, setConfirmWord] = useState("")
+  const [purging, setPurging] = useState(false)
 
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 15
@@ -98,13 +115,14 @@ function CsvUploadPage() {
   function pickFile(selectedFile) {
     if (!selectedFile) return
 
-    if (!selectedFile.name.toLowerCase().endsWith(".csv")) {
-      setError("Seuls les fichiers .csv sont acceptés.")
+    if (!/\.(csv|xlsx)$/i.test(selectedFile.name)) {
+      setError("Seuls les fichiers .csv et .xlsx sont acceptés.")
       return
     }
 
     setError("")
     setResult(null)
+    setPreview(null)
     setFile(selectedFile)
   }
 
@@ -114,7 +132,62 @@ function CsvUploadPage() {
     pickFile(event.dataTransfer.files[0])
   }
 
-  async function handleUpload() {
+  // L'API n'accepte que le .csv (DonneeController filtre sur l'extension).
+  // Un .xlsx est donc normalisé ici, côté navigateur, vers les six colonnes
+  // attendues — pas de dépendance tableur ajoutée au backend.
+  async function prepareFile() {
+    if (!/\.xlsx$/i.test(file.name)) return file
+
+    const converted = await xlsxFileToImportCsv(file)
+    if (converted.skippedLegacy > 0) {
+      setWarning(
+        `${converted.skippedLegacy} ligne(s) ignorée(s) à la conversion : ` +
+        "emplacement Legacy ou Case supprimée."
+      )
+    }
+    return converted.file
+  }
+
+  // Simulation : le serveur applique tout le traitement puis annule. Rien
+  // n'est écrit tant que l'utilisateur n'a pas confirmé.
+  async function handleScan() {
+    if (!file) return
+
+    try {
+      setScanning(true)
+      setError("")
+      setSuccess("")
+      setWarning("")
+      setResult(null)
+
+      setPreview(await scanCsv(await prepareFile(), replaceAll))
+    } catch (err) {
+      setError(err.message || "Échec de l'analyse du fichier.")
+    } finally {
+      setScanning(false)
+    }
+  }
+
+  // Le mode « remplacer » détruit des données que le fichier ne suffit pas
+  // toujours à reconstituer : il passe donc par une confirmation explicite,
+  // jamais par le simple clic qui suffit à un import normal.
+  function handleUpload() {
+    if (!file) return
+
+    if (replaceAll) {
+      openConfirm("replace")
+      return
+    }
+
+    runUpload()
+  }
+
+  function openConfirm(mode) {
+    setConfirmWord("")
+    setConfirmMode(mode)
+  }
+
+  async function runUpload() {
     if (!file) return
 
     try {
@@ -123,9 +196,13 @@ function CsvUploadPage() {
       setSuccess("")
       setWarning("")
 
-      const uploadResult = await uploadCsv(file)
+      const toSend = await prepareFile()
+      const uploadResult = await uploadCsv(toSend, replaceAll)
       setResult(uploadResult)
+      setPreview(null)
       setFile(null)
+      setConfirmMode(null)
+      setConfirmWord("")
 
       if (inputRef.current) {
         inputRef.current.value = ""
@@ -133,10 +210,49 @@ function CsvUploadPage() {
 
       await loadData(false)
     } catch (err) {
-      setError(err.message || "Échec de l'import CSV.")
+      setError(err.message || "Échec de l'import.")
+      setConfirmMode(null)
     } finally {
       setUploading(false)
     }
+  }
+
+  // Purge autonome : aucun fichier, aucune réécriture. Sert à repartir d'une
+  // base vide avant un premier import.
+  async function runPurge() {
+    try {
+      setPurging(true)
+      setError("")
+      setSuccess("")
+      setWarning("")
+      setResult(null)
+      setPreview(null)
+
+      const purged = await purgeAllData()
+
+      setSuccess(
+        `Base vidée : ${purged.donneesSupprimees ?? 0} mouvement(s) et ` +
+        `${purged.articlesSupprimes ?? 0} article(s) supprimés. ` +
+        "Magasins, rayons, zones et cases conservés."
+      )
+
+      setConfirmMode(null)
+      setConfirmWord("")
+      await loadData(false)
+    } catch (err) {
+      setError(err.message || "Échec de la suppression.")
+      setConfirmMode(null)
+    } finally {
+      setPurging(false)
+    }
+  }
+
+  // Le rapport d'analyse dépend du mode : celui obtenu avant le basculement
+  // ne décrit plus ce qui sera écrit.
+  function toggleReplaceAll(next) {
+    setReplaceAll(next)
+    setPreview(null)
+    setResult(null)
   }
 
   function openAddMovement() {
@@ -262,6 +378,34 @@ function CsvUploadPage() {
       await loadData(false)
     } catch (err) {
       setError(err.message || "Échec de la suppression.")
+    }
+  }
+
+  // kind: "csv" | "xlsx" — les deux produisent un fichier réimportable
+  async function handleExport(kind) {
+    if (!filteredMovements.length) return
+
+    setExportMenu(false)
+    try {
+      setExporting(true)
+      setError("")
+      setSuccess("")
+      setWarning("")
+
+      const run = kind === "csv" ? exportImportableCsv : exportImportableXlsx
+      const { fileName, exported, skippedLegacy } = await run(filteredMovements)
+
+      setSuccess(`Export réimportable généré : ${fileName} (${exported} ligne(s)).`)
+      if (skippedLegacy > 0) {
+        setWarning(
+          `${skippedLegacy} mouvement(s) exclu(s) : Legacy ou rattaché(s) à une ` +
+          "Case supprimée, sans emplacement que l'import puisse résoudre."
+        )
+      }
+    } catch (err) {
+      setError(err.message || "Échec de l'export.")
+    } finally {
+      setExporting(false)
     }
   }
 
@@ -393,12 +537,16 @@ function CsvUploadPage() {
 
       {isAdmin && (
         <section className="csv-import-panel">
-        <h2>Importer un fichier CSV</h2>
+        <h2>Importer un fichier CSV ou Excel</h2>
         <p className="csv-subtitle">
           Colonnes exactes :{" "}
           <code>
             codeArticle,nomArticle,fullLocation,mois,QuantiteEntrer,QuantiteSortie
           </code>
+        </p>
+        <p className="csv-subtitle">
+          Un article dont le code n’existe pas encore est créé automatiquement
+          à partir du nom porté par le fichier.
         </p>
 
         <div
@@ -414,7 +562,7 @@ function CsvUploadPage() {
           <input
             ref={inputRef}
             type="file"
-            accept=".csv"
+            accept=".csv,.xlsx"
             className="drop-zone__input"
             onChange={event => pickFile(event.target.files[0])}
           />
@@ -431,7 +579,7 @@ function CsvUploadPage() {
             <div className="drop-zone__placeholder">
               <span className="drop-zone__icon">📂</span>
               <span>
-                Glissez-déposez un CSV ici, ou <u>cliquez pour parcourir</u>
+                Glissez-déposez un fichier CSV ou Excel ici, ou <u>cliquez pour parcourir</u>
               </span>
             </div>
           )}
@@ -445,14 +593,193 @@ function CsvUploadPage() {
           </code>
         </div>
 
-        <button
-          className="btn-upload"
-          onClick={handleUpload}
-          disabled={!file || uploading}
-        >
-          {uploading ? "Import en cours…" : "Importer le CSV"}
-        </button>
+        <label className="replace-toggle">
+          <input
+            type="checkbox"
+            checked={replaceAll}
+            onChange={event => toggleReplaceAll(event.target.checked)}
+          />
+          <span className="replace-toggle__text">
+            <strong>Remplacer toutes les données existantes</strong>
+            <em>
+              Supprime la totalité des mouvements et des articles, puis recrée
+              les articles à partir du fichier. Les magasins, rayons, zones et
+              cases — capacités comprises — sont conservés.
+            </em>
+          </span>
+        </label>
+
+        <div className="csv-actions">
+          <button
+            className="btn-scan"
+            onClick={handleScan}
+            disabled={!file || scanning || uploading}
+          >
+            {scanning ? "Analyse…" : "Analyser d’abord"}
+          </button>
+          <button
+            className={replaceAll ? "btn-upload btn-upload--danger" : "btn-upload"}
+            onClick={handleUpload}
+            disabled={!file || uploading || scanning}
+          >
+            {uploading
+              ? "Import en cours…"
+              : replaceAll
+                ? "Remplacer et importer"
+                : "Importer le fichier"}
+          </button>
+        </div>
+
+        {preview && (
+          <section className="scan-panel">
+            <div className="scan-panel__head">
+              <h3>Aperçu — rien n’a encore été enregistré</h3>
+              <button className="btn-secondary-sm" onClick={() => setPreview(null)}>
+                Fermer
+              </button>
+            </div>
+
+            <div className="result-summary">
+              <span className="result-badge result-badge--success">
+                À insérer : {preview.lignesReellementInserees ?? 0}
+              </span>
+              <span className="result-badge result-badge--info">
+                Corrigées : {preview.lignesCorrigees ?? 0}
+              </span>
+              <span className="result-badge result-badge--info">
+                Doublons additionnés : {preview.doublonsFusionnes ?? 0}
+              </span>
+              <span className="result-badge result-badge--info">
+                Déjà existantes : {preview.lignesDejaExistantes ?? 0}
+              </span>
+              <span className="result-badge result-badge--warn">
+                Rejetées : {preview.lignesInvalides ?? 0}
+              </span>
+              {preview.remplacement && (
+                <span className="result-badge result-badge--danger">
+                  À supprimer : {preview.donneesSupprimees ?? 0} mouvement(s),{" "}
+                  {preview.articlesSupprimes ?? 0} article(s)
+                </span>
+              )}
+              {(preview.remplacement ||
+                (preview.nouveauxArticlesCrees ?? 0) > 0) && (
+                <span className="result-badge result-badge--info">
+                  {preview.remplacement
+                    ? "Articles recréés"
+                    : "Articles à créer"}{" "}
+                  : {preview.nouveauxArticlesCrees ?? 0}
+                </span>
+              )}
+            </div>
+
+            {preview.notesFichier?.length > 0 && (
+              <ul className="scan-notes">
+                {preview.notesFichier.map((note, i) => <li key={i}>{note}</li>)}
+              </ul>
+            )}
+
+            {preview.corrections?.length > 0 && (
+              <>
+                <h4 className="result-table-title">
+                  Corrections automatiques ({preview.corrections.length})
+                </h4>
+                <div className="table-scroll">
+                  <table className="csv-table">
+                    <thead>
+                      <tr>
+                        <th>Ligne</th><th>Champ</th><th>Avant</th><th>Après</th><th>Raison</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {preview.corrections.slice(0, 60).map((c, i) => (
+                        <tr key={i}>
+                          <td>{c.numeroLigne}</td>
+                          <td>{c.champ}</td>
+                          <td className="cell-before">{c.valeurOriginale || "—"}</td>
+                          <td className="cell-after">{c.valeurCorrigee || "—"}</td>
+                          <td>{c.raison}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
+
+            {preview.erreurs?.length > 0 && (
+              <>
+                <h4 className="result-table-title">
+                  Impossibles à corriger ({preview.erreurs.length})
+                </h4>
+                <div className="table-scroll">
+                  <table className="csv-table">
+                    <thead>
+                      <tr><th>Ligne</th><th>Code</th><th>Champ</th><th>Raison</th></tr>
+                    </thead>
+                    <tbody>
+                      {preview.erreurs.slice(0, 60).map((e, i) => (
+                        <tr key={i}>
+                          <td>{e.numeroLigne}</td>
+                          <td>{e.codeArticle || "—"}</td>
+                          <td>{e.champ || "—"}</td>
+                          <td>{e.raison}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
+
+            {preview.warnings?.length > 0 && (
+              <ul className="result-warnings">
+                {preview.warnings.map((w, i) => <li key={i}>{w}</li>)}
+              </ul>
+            )}
+
+            <button
+              className={replaceAll ? "btn-upload btn-upload--danger" : "btn-upload"}
+              onClick={handleUpload}
+              disabled={uploading}
+            >
+              {uploading
+                ? "Import en cours…"
+                : replaceAll
+                  ? "Confirmer le remplacement"
+                  : "Confirmer et importer"}
+            </button>
+          </section>
+        )}
       </section>
+      )}
+
+      {isAdmin && (
+        <section className="danger-zone">
+          <div className="danger-zone__text">
+            <h3>Vider la base</h3>
+            <p>
+              Supprime <strong>toutes</strong> les données mensuelles et{" "}
+              <strong>tous</strong> les articles
+              {movements.length > 0 || articles.length > 0 ? (
+                <> — actuellement {movements.length} mouvement(s) et{" "}
+                {articles.length} article(s)</>
+              ) : null}
+              . Les magasins, rayons, zones et cases sont conservés, ainsi que
+              les comptes utilisateurs. Irréversible.
+            </p>
+          </div>
+          <button
+            className="btn-danger-zone"
+            onClick={() => openConfirm("purge")}
+            disabled={
+              purging ||
+              uploading ||
+              (movements.length === 0 && articles.length === 0)
+            }
+          >
+            {purging ? "Suppression…" : "Tout supprimer"}
+          </button>
+        </section>
       )}
 
       {result && (
@@ -476,6 +803,19 @@ function CsvUploadPage() {
             {(result.lignesCapaciteDepassee ?? 0) > 0 && (
               <span className="result-badge result-badge--danger">
                 Capacité dépassée : {result.lignesCapaciteDepassee}
+              </span>
+            )}
+            {result.remplacement && (
+              <span className="result-badge result-badge--danger">
+                Supprimées : {result.donneesSupprimees ?? 0} mouvement(s),{" "}
+                {result.articlesSupprimes ?? 0} article(s)
+              </span>
+            )}
+            {(result.remplacement ||
+              (result.nouveauxArticlesCrees ?? 0) > 0) && (
+              <span className="result-badge result-badge--success">
+                {result.remplacement ? "Articles recréés" : "Articles créés"} :{" "}
+                {result.nouveauxArticlesCrees ?? 0}
               </span>
             )}
           </div>
@@ -550,6 +890,41 @@ function CsvUploadPage() {
               value={search}
               onChange={event => setSearch(event.target.value)}
             />
+            <div className="export-menu">
+              <button
+                className="btn-export"
+                onClick={() => setExportMenu(open => !open)}
+                disabled={exporting || loadingData || filteredMovements.length === 0}
+                aria-expanded={exportMenu}
+                aria-haspopup="menu"
+                title={
+                  filteredMovements.length === 0
+                    ? "Aucun mouvement à exporter"
+                    : `Exporter ${filteredMovements.length} mouvement(s)`
+                }
+              >
+                {exporting ? "Export en cours…" : "⤓ Exporter ▾"}
+              </button>
+
+              {exportMenu && (
+                <>
+                  <div
+                    className="export-menu__backdrop"
+                    onClick={() => setExportMenu(false)}
+                  />
+                  <div className="export-menu__list" role="menu">
+                    <button role="menuitem" onClick={() => handleExport("csv")}>
+                      <strong>Réimportable (.csv)</strong>
+                      <span>Les 6 colonnes attendues par l’import</span>
+                    </button>
+                    <button role="menuitem" onClick={() => handleExport("xlsx")}>
+                      <strong>Réimportable (.xlsx)</strong>
+                      <span>Mêmes colonnes, au format Excel</span>
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           {isAdmin && (
             <button
               className="btn-primary"
@@ -659,6 +1034,67 @@ function CsvUploadPage() {
           />
         )}
       </section>
+
+      {confirmMode && (() => {
+        const isPurge = confirmMode === "purge"
+        const word = isPurge ? "SUPPRIMER" : "REMPLACER"
+        const busy = isPurge ? purging : uploading
+
+        return (
+          <div className="modal-overlay" onClick={() => !busy && setConfirmMode(null)}>
+            <div className="modal-box" onClick={event => event.stopPropagation()}>
+              <h3 className="modal-title">
+                {isPurge
+                  ? "Supprimer toutes les données ?"
+                  : "Remplacer toutes les données ?"}
+              </h3>
+
+              <p className="modal-desc">
+                Les <strong>{movements.length}</strong> mouvement(s) et les{" "}
+                <strong>{articles.length}</strong> article(s) actuellement en
+                base vont être supprimés
+                {isPurge
+                  ? ". Rien ne les remplace : la base repart vide"
+                  : <>, puis reconstruits à partir de <strong>{file?.name}</strong></>}
+                . Les magasins, rayons, zones et cases — capacités comprises —
+                sont conservés, ainsi que les comptes utilisateurs.{" "}
+                <strong>Cette action est irréversible.</strong>
+              </p>
+
+              <label className="modal-field">
+                Tapez <code>{word}</code> pour confirmer
+                <input
+                  autoFocus
+                  value={confirmWord}
+                  onChange={event => setConfirmWord(event.target.value)}
+                  placeholder={word}
+                />
+              </label>
+
+              <div className="modal-actions">
+                <button
+                  className="btn-primary btn-submit"
+                  onClick={isPurge ? runPurge : runUpload}
+                  disabled={confirmWord.trim() !== word || busy}
+                >
+                  {busy
+                    ? "Suppression en cours…"
+                    : isPurge
+                      ? "Supprimer définitivement"
+                      : "Remplacer définitivement"}
+                </button>
+                <button
+                  className="btn-secondary"
+                  onClick={() => setConfirmMode(null)}
+                  disabled={busy}
+                >
+                  Annuler
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }

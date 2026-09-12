@@ -38,6 +38,19 @@
   --badge-blue-bg: rgba(56, 189, 248, 0.2);
   --badge-blue-text: #7dd3fc;
   --badge-blue-border: rgba(56, 189, 248, 0.3);
+
+  /* Surfaces that used to be hardcoded to dark-mode values */
+  --table-head-bg: rgba(15, 23, 42, 0.8);
+  --table-head-text: #94a3b8;
+  --overlay-bg: rgba(2, 6, 23, 0.7);
+  --surface-sunken: rgba(15, 23, 42, 0.45);
+  --surface-sunken-text: #e2e8f0;
+  --hover-tint: rgba(255, 255, 255, 0.06);
+
+  /* Neutral action buttons (edit) — the destructive one uses --danger-* */
+  --neutral-bg: rgba(99, 102, 241, 0.15);
+  --neutral-border: rgba(99, 102, 241, 0.3);
+  --neutral-text: #a5b4fc;
 }
 
 [data-theme='light'] {
@@ -78,6 +91,17 @@
   --badge-blue-bg: rgba(56, 189, 248, 0.15);
   --badge-blue-text: #0284c7;
   --badge-blue-border: rgba(56, 189, 248, 0.25);
+
+  --table-head-bg: rgba(15, 23, 42, 0.05);
+  --table-head-text: #475569;
+  --overlay-bg: rgba(15, 23, 42, 0.45);
+  --surface-sunken: rgba(15, 23, 42, 0.06);
+  --surface-sunken-text: #1e293b;
+  --hover-tint: rgba(15, 23, 42, 0.05);
+
+  --neutral-bg: rgba(99, 102, 241, 0.12);
+  --neutral-border: rgba(99, 102, 241, 0.35);
+  --neutral-text: #4338ca;
 }
 
 *, *::before, *::after { box-sizing: border-box; }

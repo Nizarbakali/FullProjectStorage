@@ -1,4 +1,5 @@
 import { useState } from "react"
+import PageTabs from "../components/PageTabs"
 import ArticlePage from "./ArticlePage"
 import CsvUploadPage from "./CsvUploadPage"
 import "./CrudPage.css"
@@ -14,21 +15,12 @@ function StockPage() {
 
   return (
     <div className="stock-page">
-      <div className="stock-tabs">
-        {TABS.map(t => (
-          <button
-            type="button"
-            key={t.id}
-            className={`stock-tab ${tab === t.id ? "stock-tab--active" : ""}`}
-            onClick={() => setTab(t.id)}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <PageTabs tabs={TABS} value={tab} onChange={setTab} label="Sections du stock" />
 
-      {tab === "articles" && <ArticlePage />}
-      {tab === "mouvements" && <CsvUploadPage />}
+      <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
+        {tab === "articles" && <ArticlePage />}
+        {tab === "mouvements" && <CsvUploadPage />}
+      </div>
     </div>
   )
 }

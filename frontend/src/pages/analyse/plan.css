@@ -1,0 +1,293 @@
+/* =========================================================
+   Plan d'entrepôt — vue « Occupation »
+   Un plan schématique : allées (rayons), blocs (zones), casiers (cases).
+   ========================================================= */
+
+/*
+ * Rampe d'élévation propre au plan.
+ *
+ * Les tokens globaux (--card-bg, --input-bg, --surface-sunken) sont des
+ * variantes TRANSLUCIDES d'une même teinte : empilées sur quatre niveaux
+ * (sol > allée > zone > casier) elles se cumulent vers le noir en thème
+ * sombre et vers le blanc en thème clair, et le plan perd tout relief.
+ * Ces surfaces-ci sont donc opaques, avec un écart franc entre chaque
+ * palier. Elles restent préfixées --plan-* : rien d'autre dans
+ * l'application n'est affecté.
+ */
+:root {
+  --plan-floor: #172136;   /* le sol, au-dessus du fond de page */
+  --plan-grid: rgba(148, 163, 184, 0.10);
+  --plan-aisle: #1e293b;   /* l'allée se détache du sol */
+  --plan-zone: #263449;    /* le bloc se détache de l'allée */
+  --plan-bin: #334155;     /* casier vide, encore visible */
+  --plan-edge: rgba(148, 163, 184, 0.18);
+}
+
+[data-theme='light'] {
+  --plan-floor: #e9eef5;   /* gris-bleu franc : ce n'est pas du blanc */
+  --plan-grid: rgba(15, 23, 42, 0.07);
+  --plan-aisle: #ffffff;   /* les allées ressortent en blanc sur le sol */
+  --plan-zone: #f1f5f9;
+  --plan-bin: #dbe3ed;
+  --plan-edge: rgba(15, 23, 42, 0.12);
+}
+
+/* ── Sélecteur de site ───────────────────────────────────── */
+.plan-sites {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 1.1rem;
+}
+
+.plan-site {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.55rem 1rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-muted);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, transform 0.15s;
+}
+
+.plan-site:hover { transform: translateY(-1px); border-color: var(--primary); }
+
+.plan-site.is-active {
+  border-color: var(--primary);
+  color: var(--text);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.plan-site b { font-size: 0.92rem; font-weight: 700; }
+.plan-site small { font-size: 0.74rem; }
+
+/* ── Légende ─────────────────────────────────────────────── */
+.plan-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.2rem;
+  margin-bottom: 1.4rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.plan-legend__item { display: inline-flex; align-items: center; gap: 0.4rem; }
+
+.plan-legend__item i {
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+/* ── Le sol : deux rangées d'allées et un couloir ─────────── */
+.plan-floor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.1rem;
+  background:
+    /* trame discrète, façon plan technique */
+    linear-gradient(var(--plan-grid) 1px, transparent 1px) 0 0 / 100% 28px,
+    linear-gradient(90deg, var(--plan-grid) 1px, transparent 1px) 0 0 / 28px 100%,
+    var(--plan-floor);
+  border: 1px solid var(--plan-edge);
+  border-radius: 16px;
+}
+
+.plan-bank { display: flex; flex-direction: column; gap: 0.9rem; }
+
+.plan-corridor {
+  position: relative;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 2px dashed var(--plan-edge);
+  border-bottom: 2px dashed var(--plan-edge);
+}
+
+.plan-corridor span {
+  padding: 0 0.7rem;
+  background: var(--plan-floor);
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+/* ── Une allée = un rayon ────────────────────────────────── */
+.plan-aisle {
+  padding: 0.75rem 0.85rem 0.85rem;
+  background: var(--plan-aisle);
+  border: 1px solid var(--plan-edge);
+  border-radius: 12px;
+}
+
+.plan-aisle__head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-bottom: 0.6rem;
+}
+
+.plan-aisle__tag {
+  padding: 0.12rem 0.5rem;
+  background: var(--primary-gradient);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.plan-aisle__head b { font-size: 0.95rem; }
+.plan-aisle__head small { color: var(--text-muted); font-size: 0.78rem; }
+
+.plan-aisle__stat {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.plan-aisle__stat i { font-style: normal; font-weight: 800; font-size: 0.95rem; }
+
+.plan-aisle__empty,
+.plan-zone__empty {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+/* ── Une zone = un bloc de casiers ───────────────────────── */
+.plan-aisle__zones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  align-items: stretch;
+}
+
+.plan-zone {
+  flex: 1 1 240px;
+  min-width: 200px;
+  padding: 0.5rem 0.55rem 0.6rem;
+  background: var(--plan-zone);
+  border: 1px solid var(--plan-edge);
+  border-radius: 10px;
+}
+
+.plan-zone__label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.45rem;
+}
+
+.plan-zone__label b { font-size: 0.82rem; letter-spacing: 0.02em; }
+.plan-zone__label small { color: var(--text-muted); font-size: 0.7rem; }
+
+.plan-zone__bins {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 92px;
+}
+
+/* ── Un casier = une case ────────────────────────────────── */
+.plan-bin {
+  position: relative;
+  min-width: 14px;
+  height: 100%;
+  padding: 0;
+  background: var(--plan-bin);
+  border: 1px solid var(--plan-edge);
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s;
+}
+
+.plan-bin:hover {
+  transform: translateY(-3px);
+  border-color: var(--primary);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+  z-index: 2;
+}
+
+.plan-bin.is-selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-light);
+  z-index: 2;
+}
+
+/* Le niveau se remplit par le bas : on lit la hauteur, la couleur ne fait
+   que confirmer la tranche de seuil. */
+.plan-bin__level {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: block;
+  transition: height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Le libellé passe aussi bien sur le fond vide que sur le niveau coloré :
+   texte clair + halo sombre, plutôt qu'un mix-blend-mode au rendu incertain. */
+.plan-bin__code {
+  position: absolute;
+  inset: auto 0 3px 0;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.85),
+    0 0 3px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.plan-bin--empty { border-style: dashed; }
+
+/* Un casier vide n'a pas de niveau coloré sous son libellé : en thème clair
+   le texte blanc y serait illisible, il repasse donc en encre foncée. */
+[data-theme='light'] .plan-bin--empty .plan-bin__code {
+  color: var(--text-muted);
+  text-shadow: none;
+}
+
+/* Dépassement : le contenu déborde par le haut du casier. */
+.plan-bin--over {
+  border-color: var(--danger-text);
+  box-shadow: inset 0 0 0 1px var(--danger-text);
+}
+
+.plan-bin__spill {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 7px;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--danger-text) 0 3px,
+    transparent 3px 6px
+  );
+}
+
+.plan-detail { margin-top: 1.4rem; }
+
+@media (max-width: 720px) {
+  .plan-zone { flex-basis: 100%; }
+  .plan-zone__bins { height: 76px; }
+  .plan-floor { padding: 0.7rem; }
+}

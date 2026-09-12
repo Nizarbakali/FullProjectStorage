@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react"
-import { useDispatch } from "react-redux"
 import { getMagasins, getArticles, getCases, getMonthlyData } from "../services/api"
-import { setActivePage } from "../store/navigationSlice"
 import "./CrudPage.css"
 import "./DashboardPage.css"
 
@@ -22,7 +20,6 @@ function average(values) {
 }
 
 function DashboardPage() {
-  const dispatch = useDispatch()
   const [magasins, setMagasins] = useState([])
   const [articles, setArticles] = useState([])
   const [cases, setCases] = useState([])
@@ -51,10 +48,6 @@ function DashboardPage() {
     load()
   }, [])
 
-  function goTo(page) {
-    dispatch(setActivePage(page))
-  }
-
   if (loading) {
     return <div className="crud-loading">Chargement du tableau de bord…</div>
   }
@@ -78,39 +71,6 @@ function DashboardPage() {
   const recentMovements = [...movements]
     .sort((a, b) => (b.mois ?? "").localeCompare(a.mois ?? "") || b.donneeId - a.donneeId)
     .slice(0, 5)
-
-  const steps = [
-    {
-      title: "Créer vos magasins",
-      done: magasins.length > 0,
-      status: magasins.length > 0 ? "Terminé" : "À faire",
-      page: "structure",
-    },
-    {
-      title: "Structurer rayons → zones → cases",
-      done: cases.length > 0,
-      status: cases.length > 0 ? "Terminé" : "À faire",
-      page: "structure",
-    },
-    {
-      title: "Enregistrer vos articles",
-      done: articles.length > 0,
-      status: articles.length > 0 ? "Terminé" : "À faire",
-      page: "stock",
-    },
-    {
-      title: `Importer les données de ${formatMonth(currentMonth)}`,
-      done: isUpToDate,
-      status: isUpToDate ? "Terminé" : "À faire",
-      page: "stock",
-    },
-    {
-      title: "Suivre analyses & prévisions",
-      done: false,
-      status: "Disponible",
-      page: "analyse",
-    },
-  ]
 
   return (
     <div className="crud-page dashboard-page">
@@ -160,27 +120,6 @@ function DashboardPage() {
           <span className={`dash-kpi__delta ${isUpToDate ? "dash-kpi__delta--good" : "dash-kpi__delta--warn"}`}>
             {isUpToDate ? "À jour" : `${formatMonth(currentMonth)} manquant`}
           </span>
-        </div>
-      </div>
-
-      <div className="dash-stepper">
-        <div className="dash-stepper__head">
-          <h2>Parcours recommandé</h2>
-          <span className="dash-stepper__hint">cliquez une étape pour y aller</span>
-        </div>
-        <div className="dash-steps">
-          {steps.map((step, index) => (
-            <button
-              type="button"
-              key={step.title}
-              className={`dash-step ${step.done ? "dash-step--done" : ""}`}
-              onClick={() => goTo(step.page)}
-            >
-              <span className="dash-step__n">{step.done ? "✓" : index + 1}</span>
-              <span className="dash-step__title">{step.title}</span>
-              <span className="dash-step__status">{step.status}</span>
-            </button>
-          ))}
         </div>
       </div>
 

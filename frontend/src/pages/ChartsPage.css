@@ -27,7 +27,7 @@
   font-size: 2.4rem;
   font-weight: 800;
   margin: 0 0 0.5rem;
-  background: linear-gradient(135deg, var(--primary), #f43f5e, #38bdf8);
+  background: var(--primary-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: -0.02em;
@@ -232,8 +232,49 @@
   gap: 1.5rem;
 }
 
-.apexcharts-tooltip {
+/* ApexCharts renders its own tooltip shell. This file used to blank it out
+   (`background: transparent`) so only the custom `.apex-tooltip-custom` markup
+   showed through — but the charts that use Apex's *default* tooltip were then
+   left with theme-coloured text on no background at all, which is invisible in
+   light mode. Give the shell a real themed surface, and let the custom tooltip
+   keep its own by neutralising only the shell it sits inside. */
+.apexcharts-tooltip.apexcharts-theme-light,
+.apexcharts-tooltip.apexcharts-theme-dark {
+  background: var(--card-bg) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18) !important;
+  color: var(--text) !important;
+}
+
+.apexcharts-tooltip .apexcharts-tooltip-title {
+  background: var(--table-head-bg) !important;
+  border-bottom: 1px solid var(--border) !important;
+  color: var(--text) !important;
+  font-weight: 600;
+}
+
+.apexcharts-tooltip .apexcharts-tooltip-text-y-label,
+.apexcharts-tooltip .apexcharts-tooltip-text-y-value,
+.apexcharts-tooltip .apexcharts-tooltip-text-goals-label,
+.apexcharts-tooltip .apexcharts-tooltip-text-goals-value {
+  color: var(--text) !important;
+}
+
+.apexcharts-xaxistooltip,
+.apexcharts-yaxistooltip {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+/* The custom tooltip brings its own card, so the shell around it stays bare. */
+.apexcharts-tooltip:has(.apex-tooltip-custom) {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }

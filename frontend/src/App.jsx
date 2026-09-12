@@ -14,15 +14,14 @@ import UserManagementPage from "./pages/UserManagementPage"
 import "./App.css"
 
 // ── Section definitions ───────────────────────────────────────────────────────
-// Each section groups what used to be flat, unrelated tabs under the task it
-// actually serves, so the nav mirrors what a user is trying to do rather than
-// the database tables underneath it.
+// One entry per destination, ordered the way work actually flows: look at the
+// numbers, set up the warehouse, feed it stock, analyse it, manage access.
 const SECTIONS = [
-  { id: "dashboard", label: "Tableau de bord", group: "Vue d'ensemble",         roles: ["admin", "user"] },
-  { id: "structure", label: "Structure",       group: "Hiérarchie physique",   roles: ["admin"] },
-  { id: "stock",     label: "Stock",           group: "Références & mouvements", roles: ["admin"] },
-  { id: "analyse",   label: "Analyse",         group: "Pilotage",              roles: ["admin", "user"] },
-  { id: "admin",     label: "Utilisateurs",    group: "Administration",        roles: ["admin"] },
+  { id: "dashboard", label: "Tableau de bord", roles: ["admin", "user"] },
+  { id: "structure", label: "Structure",       roles: ["admin"] },
+  { id: "stock",     label: "Stock",           roles: ["admin"] },
+  { id: "analyse",   label: "Analyse",         roles: ["admin", "user"] },
+  { id: "admin",     label: "Utilisateurs",    roles: ["admin"] },
 ]
 
 function App() {
@@ -39,6 +38,12 @@ function App() {
     localStorage.setItem("theme", theme)
   }, [theme])
 
+  // Switching section used to keep the previous scroll offset, which dropped
+  // you halfway down the new page. Always start a section at the top.
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "auto" })
+  }, [activePage])
+
   // When the role changes (e.g. after login), make sure the active page is valid
   useEffect(() => {
     const allowed = sections.map(s => s.id)
@@ -49,17 +54,6 @@ function App() {
 
   // ── Auth gate ───────────────────────────────────────────────────────────────
   if (!isAuthenticated) return <LoginPage />
-
-  // Group sections by their sidebar group, preserving SECTIONS order.
-  const groups = []
-  for (const section of sections) {
-    let group = groups.find(g => g.label === section.group)
-    if (!group) {
-      group = { label: section.group, items: [] }
-      groups.push(group)
-    }
-    group.items.push(section)
-  }
 
   // ── Authenticated shell ─────────────────────────────────────────────────────
   return (
@@ -93,21 +87,22 @@ function App() {
 
       <div className="app-body">
         <aside className="app-sidebar">
-          {groups.map(group => (
-            <div className="app-sidebar__group" key={group.label}>
-              <span className="app-sidebar__eyebrow">{group.label}</span>
-              {group.items.map(section => (
-                <button
-                  type="button"
-                  key={section.id}
-                  className={`app-sidebar__item ${activePage === section.id ? "app-sidebar__item--active" : ""}`}
-                  onClick={() => dispatch(setActivePage(section.id))}
-                >
-                  {section.label}
-                </button>
+          <nav aria-label="Sections de l'application">
+            <ul className="app-sidebar__list">
+              {sections.map(section => (
+                <li key={section.id}>
+                  <button
+                    type="button"
+                    aria-current={activePage === section.id ? "page" : undefined}
+                    className={`app-sidebar__item ${activePage === section.id ? "app-sidebar__item--active" : ""}`}
+                    onClick={() => dispatch(setActivePage(section.id))}
+                  >
+                    {section.label}
+                  </button>
+                </li>
               ))}
-            </div>
-          ))}
+            </ul>
+          </nav>
         </aside>
 
         <main className="app-main">

@@ -45,6 +45,12 @@ function ZonePage({ filterRayonId, onDrill } = {}) {
     setShowForm(true); setError("")
   }
 
+  // Rayon imposé à la création ; en modification le select reste accessible
+  // pour pouvoir déplacer une zone d'un rayon à l'autre.
+  const lockedRayon = filterRayonId && !editId
+    ? rayons.find(r => Number(r.rayonId) === Number(filterRayonId)) ?? { codeRayon: "Rayon courant" }
+    : null
+
   const visibleZones = filterRayonId
     ? zones.filter(z => Number(z.rayonId) === Number(filterRayonId))
     : zones
@@ -124,13 +130,26 @@ function ZonePage({ filterRayonId, onDrill } = {}) {
         <form className="crud-form" onSubmit={handleSubmit}>
           <h3 className="form-title">{editId ? "Modifier la zone" : "Nouvelle zone"}</h3>
           <div className="form-grid">
-            <label className="form-field">
-              <span>Rayon <span className="required">*</span></span>
-              <select value={form.rayonId} onChange={field("rayonId")}>
-                <option value="">— Sélectionner —</option>
-                {rayons.map(r => <option key={r.rayonId} value={r.rayonId}>{r.codeRayon}{r.nomRayon ? ` — ${r.nomRayon}` : ""} ({r.codeMagasin})</option>)}
-              </select>
-            </label>
+            {lockedRayon ? (
+              // Le rayon vient du fil d'Ariane : on ne le choisit pas.
+              <div className="form-field">
+                <span>Rayon</span>
+                <p className="form-static">
+                  {lockedRayon.codeRayon}{lockedRayon.nomRayon ? ` — ${lockedRayon.nomRayon}` : ""}
+                </p>
+              </div>
+            ) : (
+              <label className="form-field">
+                <span>
+                  Rayon <span className="required">*</span>
+                  {editId && filterRayonId && <span className="optional"> — changer pour déplacer la zone</span>}
+                </span>
+                <select value={form.rayonId} onChange={field("rayonId")}>
+                  <option value="">— Sélectionner —</option>
+                  {rayons.map(r => <option key={r.rayonId} value={r.rayonId}>{r.codeRayon}{r.nomRayon ? ` — ${r.nomRayon}` : ""} ({r.codeMagasin})</option>)}
+                </select>
+              </label>
+            )}
             <label className="form-field">
               <span>Code Zone <span className="required">*</span></span>
               <input placeholder="ex: Z-001" value={form.codeZone} onChange={field("codeZone")} />

@@ -503,3 +503,42 @@
     animation: none;
   }
 }
+
+
+/* ── Light-mode map chrome ─────────────────────────────────────────────
+   The tile filter above only applies in dark mode, so the controls painted
+   over the map need a light counterpart; otherwise they stay black boxes on a
+   pale map. */
+[data-theme="light"] .magasin-map-shell { background: #e8eef4; }
+
+[data-theme="light"] .magasin-map-shell .leaflet-control-zoom a {
+  border-color: rgba(15, 23, 42, 0.15);
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.94);
+}
+
+[data-theme="light"] .magasin-map-shell .leaflet-control-zoom a:hover {
+  color: #0f172a;
+  background: #fff;
+}
+
+[data-theme="light"] .magasin-map-shell .leaflet-control-attribution {
+  color: #475569;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="light"] .magasin-map-shell .leaflet-control-attribution a {
+  color: #b91c1c;
+}
+
+[data-theme="light"] .magasin-map-loading,
+[data-theme="light"] .magasin-map-reset {
+  border-color: rgba(15, 23, 42, 0.15);
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.94);
+}
+
+[data-theme="light"] .magasin-map-reset:hover {
+  border-color: var(--primary);
+  background: #fff;
+}

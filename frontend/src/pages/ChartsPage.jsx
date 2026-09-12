@@ -8,6 +8,7 @@ import {
   useDispatch
 } from "react-redux"
 import Chart from "react-apexcharts"
+import { useChartTheme } from "../theme/useChartTheme"
 import {
   fetchMonthlyData,
   setSelectedYear,
@@ -33,6 +34,10 @@ const MONTHS = [
 ]
 
 function ChartsPage() {
+  // Apex bakes colours into the SVG, so the charts need the theme as a value
+  // and must re-render when it flips.
+  const chartColors = useChartTheme()
+
   const dispatch = useDispatch()
 
   const {
@@ -339,7 +344,7 @@ function ChartsPage() {
         enabled: false
       },
       background: "transparent",
-      foreColor: "#94a3b8"
+      foreColor: chartColors.axis
     },
 
     dataLabels: {
@@ -373,7 +378,7 @@ function ChartsPage() {
 
       labels: {
         style: {
-          colors: "#94a3b8",
+          colors: chartColors.axis,
           fontSize: "12px"
         }
       },
@@ -392,7 +397,7 @@ function ChartsPage() {
 
       labels: {
         style: {
-          colors: "#94a3b8",
+          colors: chartColors.axis,
           fontSize: "12px"
         },
 
@@ -403,12 +408,12 @@ function ChartsPage() {
     },
 
     grid: {
-      borderColor: "#1e293b",
+      borderColor: chartColors.grid,
       strokeDashArray: 4
     },
 
     tooltip: {
-      theme: "dark",
+      theme: chartColors.tooltip,
 
       y: {
         formatter: value =>
@@ -433,7 +438,7 @@ function ChartsPage() {
       text: "Aucune donnée disponible",
 
       style: {
-        color: "#94a3b8"
+        color: chartColors.axis
       }
     }
   }
@@ -457,7 +462,7 @@ function ChartsPage() {
         enabled: false
       },
       background: "transparent",
-      foreColor: "#94a3b8"
+      foreColor: chartColors.axis
     },
 
     plotOptions: {
@@ -494,7 +499,7 @@ function ChartsPage() {
         trim: false,
 
         style: {
-          colors: "#94a3b8",
+          colors: chartColors.axis,
           fontSize: "11px"
         }
       },
@@ -514,13 +519,13 @@ function ChartsPage() {
       title: {
         text: "Quantité",
         style: {
-          color: "#94a3b8"
+          color: chartColors.axis
         }
       },
 
       labels: {
         style: {
-          colors: "#94a3b8",
+          colors: chartColors.axis,
           fontSize: "11px"
         },
 
@@ -531,7 +536,7 @@ function ChartsPage() {
     },
 
     grid: {
-      borderColor: "#1e293b",
+      borderColor: chartColors.grid,
       strokeDashArray: 4
     },
 
@@ -545,7 +550,7 @@ function ChartsPage() {
     },
 
     tooltip: {
-      theme: "dark",
+      theme: chartColors.tooltip,
 
       custom: function ({
         dataPointIndex
@@ -580,7 +585,7 @@ function ChartsPage() {
       text: "Aucun article disponible",
 
       style: {
-        color: "#94a3b8"
+        color: chartColors.axis
       }
     }
   }
@@ -595,7 +600,7 @@ function ChartsPage() {
         show: false
       },
       background: "transparent",
-      foreColor: "#94a3b8"
+      foreColor: chartColors.axis
     },
 
     plotOptions: {
@@ -627,7 +632,7 @@ function ChartsPage() {
             .toLocaleString(),
 
         style: {
-          colors: "#94a3b8",
+          colors: chartColors.axis,
           fontSize: "11px"
         }
       }
@@ -636,19 +641,19 @@ function ChartsPage() {
     yaxis: {
       labels: {
         style: {
-          colors: "#94a3b8",
+          colors: chartColors.axis,
           fontSize: "11px"
         }
       }
     },
 
     grid: {
-      borderColor: "#1e293b",
+      borderColor: chartColors.grid,
       strokeDashArray: 4
     },
 
     tooltip: {
-      theme: "dark",
+      theme: chartColors.tooltip,
 
       y: {
         formatter: value =>
@@ -665,7 +670,7 @@ function ChartsPage() {
       text: "Aucun mouvement disponible",
 
       style: {
-        color: "#94a3b8"
+        color: chartColors.axis
       }
     }
   }
