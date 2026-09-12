@@ -90,6 +90,21 @@ public class RayonService : IRayonService
         if (rayon == null)
             return null;
 
+        // Même contrainte que pour les Zones : la navigation Magasin déjà
+        // chargée ne suit pas le changement de FK, et MapToDto lirait
+        // l'ancien Magasin. On charge le Magasin cible et on l'affecte —
+        // ce qui valide au passage l'identifiant reçu.
+        var magasin = await _context.Magasins
+            .FirstOrDefaultAsync(
+                m => m.MagasinId == dto.MagasinId);
+
+        if (magasin == null)
+        {
+            throw new ArgumentException(
+                $"Le Magasin {dto.MagasinId} est introuvable.");
+        }
+
+        rayon.Magasin = magasin;
         rayon.MagasinId = dto.MagasinId;
 
         rayon.CodeRayon = dto.CodeRayon
@@ -101,12 +116,6 @@ public class RayonService : IRayonService
         rayon.Actif = dto.Actif;
 
         await _context.SaveChangesAsync();
-
-        var magasinReference = _context.Entry(rayon)
-            .Reference(r => r.Magasin);
-
-        magasinReference.IsLoaded = false;
-        await magasinReference.LoadAsync();
 
         await RecomputeFullLocationsAsync(id);
 

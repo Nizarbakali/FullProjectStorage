@@ -14,6 +14,20 @@ public interface IGeocodingService
         CancellationToken cancellationToken = default);
 }
 
+/// <summary>
+/// Le service de localisation n'a pas pu être interrogé (réseau, délai
+/// dépassé). À distinguer d'une ville introuvable : ici la saisie de
+/// l'utilisateur n'est pas en cause, seule la localisation manque, et
+/// l'appelant peut légitimement poursuivre sans coordonnées.
+/// </summary>
+public sealed class GeocodingUnavailableException : InvalidOperationException
+{
+    public GeocodingUnavailableException(string message)
+        : base(message)
+    {
+    }
+}
+
 public sealed class NominatimGeocodingService : IGeocodingService
 {
     private static readonly SemaphoreSlim RequestGate = new(1, 1);

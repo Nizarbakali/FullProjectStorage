@@ -86,10 +86,17 @@ public class CaseService : ICaseService
         if (@case == null)
             return null;
 
-        var zoneExists = await _context.Zones
-            .AnyAsync(z => z.ZoneId == dto.ZoneId);
+        // La Zone est chargée, pas seulement testée : réaffecter ZoneId ne
+        // remplace pas la navigation @case.Zone déjà chargée, si bien qu'après
+        // SaveChanges BuildCaseLocation lirait encore l'ancienne Zone. On
+        // affecte donc la navigation directement, avec sa chaîne Rayon >
+        // Magasin, ce qui couvre aussi la validation de l'identifiant.
+        var zone = await _context.Zones
+            .Include(z => z.Rayon)
+                .ThenInclude(r => r.Magasin)
+            .FirstOrDefaultAsync(z => z.ZoneId == dto.ZoneId);
 
-        if (!zoneExists)
+        if (zone == null)
         {
             throw new ArgumentException(
                 $"La Zone {dto.ZoneId} est introuvable.");
@@ -107,6 +114,7 @@ public class CaseService : ICaseService
         var currentQuantity = @case.Donnees.Sum(
             d => d.QuantiteEntrer - d.QuantiteSortie);
 
+        @case.Zone = zone;
         @case.ZoneId = dto.ZoneId;
         @case.CodeCase = code;
         @case.PositionCase = dto.PositionCase;
@@ -116,17 +124,6 @@ public class CaseService : ICaseService
             dto.CapaciteMaximum);
 
         await _context.SaveChangesAsync();
-
-        var zoneReference = _context.Entry(@case)
-            .Reference(c => c.Zone);
-
-        zoneReference.IsLoaded = false;
-
-        await zoneReference
-            .Query()
-            .Include(z => z.Rayon)
-                .ThenInclude(r => r.Magasin)
-            .LoadAsync();
 
         foreach (var articleId in affectedArticleIds)
             await RecomputeArticleFullLocationAsync(articleId);
@@ -139,6 +136,9 @@ public class CaseService : ICaseService
     public async Task<DeleteResultDto?> DeleteAsync(int id)
     {
         var @case = await _context.Cases
+            .Include(c => c.Zone)
+                .ThenInclude(z => z.Rayon)
+                    .ThenInclude(r => r.Magasin)
             .Include(c => c.Articles)
             .Include(c => c.Donnees)
                 .ThenInclude(d => d.Article)
@@ -198,11 +198,12 @@ public class CaseService : ICaseService
         _context.Cases.Remove(@case);
         await _context.SaveChangesAsync();
 
+        // Rebuild each affected article's FullLocation from the cases it still
+        // belongs to. RecomputeArticleFullLocationAsync re-queries the article
+        // with its remaining cases and full zone chain, so this stays correct
+        // when the article is still stored in other cases.
         foreach (var article in affectedArticles)
-        {
-            article.FullLocation =
-                BuildArticleFullLocation(article.Cases);
-        }
+            await RecomputeArticleFullLocationAsync(article.ArticleId);
 
         await _context.SaveChangesAsync();
 

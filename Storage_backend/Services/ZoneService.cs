@@ -88,6 +88,24 @@ public class ZoneService : IZoneService
         if (zone == null)
             return null;
 
+        // Réaffecter le FK ne remplace pas la navigation déjà chargée : après
+        // SaveChanges, zone.Rayon pointerait encore sur l'ancien Rayon et
+        // FullLocation serait reconstruit depuis le mauvais parent. On charge
+        // donc le Rayon cible (avec son Magasin) et on l'affecte directement.
+        // Cette lecture vaut aussi validation : un RayonId inconnu remonte en
+        // 400 au lieu d'une violation de clé étrangère.
+        var rayon = await _context.Rayons
+            .Include(r => r.Magasin)
+            .FirstOrDefaultAsync(
+                r => r.RayonId == dto.RayonId);
+
+        if (rayon == null)
+        {
+            throw new ArgumentException(
+                $"Le Rayon {dto.RayonId} est introuvable.");
+        }
+
+        zone.Rayon = rayon;
         zone.RayonId = dto.RayonId;
 
         zone.CodeZone = dto.CodeZone
@@ -99,16 +117,6 @@ public class ZoneService : IZoneService
         zone.Actif = dto.Actif;
 
         await _context.SaveChangesAsync();
-
-        var rayonReference = _context.Entry(zone)
-            .Reference(z => z.Rayon);
-
-        rayonReference.IsLoaded = false;
-
-        await rayonReference
-            .Query()
-            .Include(r => r.Magasin)
-            .LoadAsync();
 
         await RecomputeFullLocationsAsync(id);
 

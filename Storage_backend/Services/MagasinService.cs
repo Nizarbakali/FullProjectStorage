@@ -155,7 +155,22 @@ public class MagasinService : IMagasinService
         if (magasin is null)
             return null;
 
-        var locationChanged =
+        // Deux cas très différents étaient confondus ici, et le second
+        // faisait échouer des modifications sans rapport avec la carte.
+        //
+        //  • La ville ou le pays viennent d'être saisis : le géocodage fait
+        //    partie de la validation. Une ville introuvable est une faute de
+        //    frappe utile à signaler, on la laisse remonter en 400.
+        //
+        //  • La ville et le pays sont inchangés et seules les coordonnées
+        //    manquent : ce n'est qu'un rattrapage opportuniste. Renommer un
+        //    magasin ou le désactiver ne doit jamais dépendre d'un appel
+        //    réseau. On tente, on n'insiste pas.
+        //
+        // Dans les deux cas, une panne du service ne fait pas perdre la
+        // saisie : les coordonnées restent simplement absentes et
+        // GetAllAsync / GetByIdAsync les rattraperont à la prochaine lecture.
+        var locationEdited =
             !string.Equals(
                 magasin.Ville.Trim(),
                 dto.Ville.Trim(),
@@ -164,22 +179,51 @@ public class MagasinService : IMagasinService
             !string.Equals(
                 magasin.Pays.Trim(),
                 dto.Pays.Trim(),
-                StringComparison.OrdinalIgnoreCase)
-            ||
-            NeedsCoordinates(magasin);
+                StringComparison.OrdinalIgnoreCase);
 
-        if (locationChanged)
+        if (locationEdited || NeedsCoordinates(magasin))
         {
-            var coordinates =
-                await FindRequiredCoordinatesAsync(
-                    dto.Ville,
-                    dto.Pays);
+            try
+            {
+                var coordinates =
+                    await FindRequiredCoordinatesAsync(
+                        dto.Ville,
+                        dto.Pays);
 
-            magasin.Latitude =
-                coordinates.Latitude;
+                magasin.Latitude =
+                    coordinates.Latitude;
 
-            magasin.Longitude =
-                coordinates.Longitude;
+                magasin.Longitude =
+                    coordinates.Longitude;
+            }
+            catch (GeocodingUnavailableException ex)
+            {
+                // Service injoignable : on n'épingle jamais le magasin sur
+                // son ancienne ville, on efface plutôt les coordonnées.
+                if (locationEdited)
+                {
+                    magasin.Latitude = null;
+                    magasin.Longitude = null;
+                }
+
+                _logger.LogWarning(
+                    ex,
+                    "Modification du magasin {CodeMagasin} enregistrée " +
+                    "sans coordonnées : service de localisation " +
+                    "injoignable.",
+                    magasin.CodeMagasin);
+            }
+            catch (InvalidOperationException) when (!locationEdited)
+            {
+                // Ville inchangée et introuvable : la saisie n'est pas en
+                // cause, le rattrapage échoue en silence.
+                _logger.LogWarning(
+                    "Coordonnées du magasin {CodeMagasin} toujours " +
+                    "introuvables pour « {Ville} », « {Pays} ».",
+                    magasin.CodeMagasin,
+                    magasin.Ville,
+                    magasin.Pays);
+            }
         }
 
         magasin.CodeMagasin = dto.CodeMagasin
@@ -315,14 +359,14 @@ public class MagasinService : IMagasinService
         }
         catch (HttpRequestException)
         {
-            throw new InvalidOperationException(
+            throw new GeocodingUnavailableException(
                 "Le service de localisation est " +
                 "temporairement indisponible. " +
                 "Réessayez dans quelques instants.");
         }
         catch (TaskCanceledException)
         {
-            throw new InvalidOperationException(
+            throw new GeocodingUnavailableException(
                 "Le service de localisation a mis " +
                 "trop de temps à répondre. Réessayez.");
         }
