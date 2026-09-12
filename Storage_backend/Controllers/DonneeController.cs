@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StudentApi.DTOs;
 using StudentApi.Services;
@@ -109,11 +109,31 @@ public class MonthlyDataController : ControllerBase
         }
     }
 
+    // DELETE api/MonthlyData/purge
+    // Vide les données mensuelles et les Articles. L'infrastructure
+    // (Magasins, Rayons, Zones, Cases) et les comptes sont conservés.
+    [Authorize(Roles = "admin")]
+    [HttpDelete("purge")]
+    public async Task<ActionResult<PurgeResultDto>> Purge()
+    {
+        try
+        {
+            return Ok(await _donneeService.PurgeAllAsync());
+        }
+        catch (InvalidOperationException exception)
+        {
+            return BadRequest(exception.Message);
+        }
+    }
+
     // POST api/MonthlyData/scan
+    // Simulation : renvoie exactement le rapport qu'aurait produit l'import,
+    // corrections comprises, sans rien écrire. Alimente l'aperçu.
     [Authorize(Roles = "admin")]
     [HttpPost("scan")]
-    public async Task<ActionResult<CsvScanResultDto>> Scan(
-        [FromForm] IFormFile file)
+    public async Task<ActionResult<CsvUploadResultDto>> Scan(
+        [FromForm] IFormFile file,
+        [FromQuery] bool replace = false)
     {
         if (file == null || file.Length == 0)
             return BadRequest("Aucun fichier fourni.");
@@ -128,7 +148,11 @@ public class MonthlyDataController : ControllerBase
 
         try
         {
-            var result = await _donneeService.ScanCsvAsync(file);
+            // Une simulation dont le verdict est « invalide » reste un
+            // résultat exploitable : l'aperçu doit pouvoir afficher pourquoi.
+            var result = await _donneeService.SimulateCsvAsync(
+                file,
+                replace);
             return Ok(result);
         }
         catch (ArgumentException exception)
@@ -144,8 +168,11 @@ public class MonthlyDataController : ControllerBase
     // POST api/MonthlyData/upload
     [Authorize(Roles = "admin")]
     [HttpPost("upload")]
+    // replace=true : purge les mouvements et les Articles avant d'écrire.
+    // L'infrastructure (Magasins, Rayons, Zones, Cases) est conservée.
     public async Task<ActionResult<CsvUploadResultDto>> Upload(
-        [FromForm] IFormFile file)
+        [FromForm] IFormFile file,
+        [FromQuery] bool replace = false)
     {
         if (file == null || file.Length == 0)
             return BadRequest("Aucun fichier fourni.");
@@ -160,7 +187,9 @@ public class MonthlyDataController : ControllerBase
 
         try
         {
-            var result = await _donneeService.UploadCsvAsync(file);
+            var result = await _donneeService.UploadCsvAsync(
+                file,
+                replace);
 
             if (!result.Succes)
                 return BadRequest(result);

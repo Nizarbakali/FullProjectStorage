@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using CsvHelper;
 using CsvHelper.Configuration;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +11,9 @@ namespace StudentApi.Services;
 
 public class DonneeService : IDonneeService
 {
+    private const char LineFeed = (char)10;
+    private const char CarriageReturn = (char)13;
+
     private static readonly string[] RequiredHeaders =
     [
         "codeArticle",
@@ -472,15 +475,46 @@ public class DonneeService : IDonneeService
         return report;
     }
 
-    public async Task<CsvUploadResultDto> UploadCsvAsync(
-        IFormFile file)
+    public Task<CsvUploadResultDto> UploadCsvAsync(
+        IFormFile file,
+        bool replace = false)
+        => ImportCsvAsync(file, dryRun: false, replace);
+
+    /// <summary>
+    /// Simulation : le fichier est lu, nettoyé et validé exactement comme à
+    /// l'import, mais rien n'est écrit. Alimente l'aperçu affiché avant
+    /// confirmation.
+    /// </summary>
+    public Task<CsvUploadResultDto> SimulateCsvAsync(
+        IFormFile file,
+        bool replace = false)
+        => ImportCsvAsync(file, dryRun: true, replace);
+
+    private async Task<CsvUploadResultDto> ImportCsvAsync(
+        IFormFile file,
+        bool dryRun,
+        bool replace = false)
     {
-        var report = new CsvUploadResultDto();
+        var report = new CsvUploadResultDto { Simulation = dryRun };
         var rawRows = new List<RawCsvRow>();
 
-        using (var reader =
-               new StreamReader(file.OpenReadStream()))
-        using (var csv = CreateReader(reader))
+        // Encodage puis séparateur : les deux sont déduits du fichier plutôt
+        // qu'imposés, sinon un CSV enregistré par un Excel français (Latin-1
+        // et « ; ») échouerait avec un message incompréhensible.
+        string content;
+        using (var input = file.OpenReadStream())
+        {
+            content = CsvDataCleaner.ReadAllText(input, out var encodingNote);
+            if (encodingNote is not null) report.NotesFichier.Add(encodingNote);
+        }
+
+        var firstLine = content.Split(LineFeed, 2)[0].TrimEnd(CarriageReturn);
+        var delimiter = CsvDataCleaner.DetectDelimiter(
+            firstLine, RequiredHeaders.Length, out var delimiterNote);
+        if (delimiterNote is not null) report.NotesFichier.Add(delimiterNote);
+
+        using (var reader = new StringReader(content))
+        using (var csv = CreateReader(reader, delimiter))
         {
             if (!await csv.ReadAsync())
             {
@@ -561,6 +595,21 @@ public class DonneeService : IDonneeService
             }
         }
 
+        // Une seule transaction couvre la purge éventuelle, la création des
+        // Articles et l'écriture des mouvements. Un import « remplacer » qui
+        // échoue à mi-parcours ne doit jamais laisser la base vidée.
+        await using var transaction =
+            await _context.Database.BeginTransactionAsync();
+
+        if (replace)
+            await ReplaceReferenceDataAsync(report);
+
+        // Les Articles absents de la base sont créés à partir du fichier, en
+        // mode normal comme en mode « remplacer » : une ligne dont le code est
+        // valide et le nom renseigné ne doit plus être rejetée pour la seule
+        // raison que l'Article n'existait pas encore.
+        await CreateMissingArticlesAsync(rawRows, report);
+
         var articles = await _context.Articles
             .Include(a => a.Cases)
                 .ThenInclude(c => c.Zone)
@@ -588,8 +637,13 @@ public class DonneeService : IDonneeService
         {
             var source = rawRow.Source;
             var code =
-                CsvDataCleaner.NormalizeCode(
-                    source.CodeArticle);
+                CsvDataCleaner.RepairArticleCode(
+                    source.CodeArticle,
+                    out var codeNote);
+
+            AddCorrection(
+                report, rawRow.Line, code, "codeArticle",
+                source.CodeArticle, code, codeNote);
 
             if (!CsvDataCleaner.IsValidArticleCode(code))
             {
@@ -606,6 +660,9 @@ public class DonneeService : IDonneeService
                 continue;
             }
 
+            // À ce stade, tout code valide accompagné d'un nom a déjà donné
+            // lieu à la création de l'Article : seule une ligne au nom vide
+            // peut encore échouer ici.
             if (!articleLookup.TryGetValue(
                     code,
                     out var article))
@@ -614,11 +671,11 @@ public class DonneeService : IDonneeService
                     report,
                     rawRow.Line,
                     code,
-                    "codeArticle",
-                    source.CodeArticle,
+                    "nomArticle",
+                    source.NomArticle,
                     rawRow.RawLine,
-                    "Article inexistant. L'import CSV ne crée " +
-                    "et ne supprime aucun Article.");
+                    $"Article {code} inexistant et nomArticle vide : " +
+                    "impossible de le créer automatiquement.");
 
                 continue;
             }
@@ -686,7 +743,8 @@ public class DonneeService : IDonneeService
 
             if (!CsvDataCleaner.TryParseMonth(
                     source.Mois,
-                    out var month))
+                    out var month,
+                    out var monthNote))
             {
                 AddInvalid(
                     report,
@@ -701,9 +759,14 @@ public class DonneeService : IDonneeService
                 continue;
             }
 
-            if (!CsvDataCleaner.TryParseNonNegativeInt(
+            AddCorrection(
+                report, rawRow.Line, code, "mois",
+                source.Mois, month.ToString("yyyy-MM"), monthNote);
+
+            if (!CsvDataCleaner.TryParseQuantity(
                     source.QuantiteEntrer,
-                    out var quantityIn))
+                    out var quantityIn,
+                    out var quantityInNote))
             {
                 AddInvalid(
                     report,
@@ -712,14 +775,19 @@ public class DonneeService : IDonneeService
                     "QuantiteEntrer",
                     source.QuantiteEntrer,
                     rawRow.RawLine,
-                    "Entier supérieur ou égal à 0 requis.");
+                    "Nombre attendu : entier, ou décimale qui sera arrondie.");
 
                 continue;
             }
 
-            if (!CsvDataCleaner.TryParseNonNegativeInt(
+            AddCorrection(
+                report, rawRow.Line, code, "QuantiteEntrer",
+                source.QuantiteEntrer, quantityIn.ToString(), quantityInNote);
+
+            if (!CsvDataCleaner.TryParseQuantity(
                     source.QuantiteSortie,
-                    out var quantityOut))
+                    out var quantityOut,
+                    out var quantityOutNote))
             {
                 AddInvalid(
                     report,
@@ -728,10 +796,14 @@ public class DonneeService : IDonneeService
                     "QuantiteSortie",
                     source.QuantiteSortie,
                     rawRow.RawLine,
-                    "Entier supérieur ou égal à 0 requis.");
+                    "Nombre attendu : entier, ou décimale qui sera arrondie.");
 
                 continue;
             }
+
+            AddCorrection(
+                report, rawRow.Line, code, "QuantiteSortie",
+                source.QuantiteSortie, quantityOut.ToString(), quantityOutNote);
 
             report.LignesValidesAvantDoublons++;
 
@@ -783,33 +855,33 @@ public class DonneeService : IDonneeService
                 continue;
             }
 
-            candidates.Remove(key);
-            conflictingKeys.Add(key);
-            report.GroupesEnConflit++;
-            report.LignesEnConflit += 2;
+            // Doublon contradictoire : même Article, même Case, même mois,
+            // mais des quantités différentes. Plutôt que de rejeter le groupe,
+            // les lignes sont additionnées — deux saisies partielles du même
+            // mois décrivent le plus souvent deux mouvements réels.
+            // La fusion est journalisée : elle change la valeur enregistrée et
+            // doit rester visible dans l'aperçu.
+            var mergedIn = first.QuantityIn + quantityIn;
+            var mergedOut = first.QuantityOut + quantityOut;
 
-            var conflictReason =
-                $"Conflit pour {code}, " +
-                $"{BuildCaseLocation(@case)}, " +
-                $"{month:yyyy-MM}.";
+            candidates[key] = first with
+            {
+                QuantityIn = mergedIn,
+                QuantityOut = mergedOut,
+            };
 
-            AddError(
-                report,
-                first.Line,
-                code,
-                "doublon",
-                null,
-                first.RawLine,
-                conflictReason);
+            report.DoublonsFusionnes++;
 
-            AddError(
+            AddCorrection(
                 report,
                 rawRow.Line,
                 code,
                 "doublon",
-                null,
-                rawRow.RawLine,
-                conflictReason);
+                $"L{first.Line} ({first.QuantityIn}/{first.QuantityOut}) + " +
+                $"L{rawRow.Line} ({quantityIn}/{quantityOut})",
+                $"{mergedIn}/{mergedOut}",
+                $"Doublon additionné pour {code}, {BuildCaseLocation(@case)}, " +
+                $"{month:yyyy-MM} : entrées {mergedIn}, sorties {mergedOut}.");
         }
 
         var allExistingMovements = await _context.Donnees
@@ -866,18 +938,55 @@ public class DonneeService : IDonneeService
             ReconcileLegacyMovements(
                 candidates,
                 legacyMovements,
+                existingByKey,
                 report);
 
         if (candidates.Count == 0)
         {
+            if (replace)
+            {
+                // La purge appartient déjà à cette transaction : la solder par
+                // un rollback vaut mieux que de vider la base pour n'y
+                // réécrire aucun mouvement.
+                await transaction.RollbackAsync();
+                _context.ChangeTracker.Clear();
+
+                report.Remplacement = false;
+                report.DonneesSupprimees = 0;
+                report.ArticlesSupprimes = 0;
+                report.NouveauxArticlesCrees = 0;
+
+                AddError(
+                    report,
+                    0,
+                    null,
+                    "fichier",
+                    null,
+                    string.Empty,
+                    "Remplacement annulé : aucune ligne exploitable dans le " +
+                    "fichier. Les données existantes sont intactes.");
+
+                report.Succes = false;
+                return report;
+            }
+
+            // Aucun mouvement à écrire, mais le fichier a pu faire naître des
+            // Articles : la transaction est validée pour qu'ils survivent.
+            if (dryRun || report.NouveauxArticlesCrees == 0)
+            {
+                await transaction.RollbackAsync();
+                _context.ChangeTracker.Clear();
+            }
+            else
+            {
+                await transaction.CommitAsync();
+            }
+
             report.Succes = true;
             return report;
         }
 
         var insertedMovements = new List<Donnee>();
-
-        await using var transaction =
-            await _context.Database.BeginTransactionAsync();
 
         try
         {
@@ -945,9 +1054,16 @@ public class DonneeService : IDonneeService
                 .Select(key => key.CaseId)
                 .ToHashSet();
 
+            // Après une purge, une Case absente du nouveau fichier garderait
+            // le Statut calculé sur les mouvements disparus : le remplacement
+            // les resynchronise donc toutes.
+            var caseIdsToSynchronize = replace
+                ? cases.Select(c => c.CaseId).ToHashSet()
+                : affectedCaseIds;
+
             await SynchronizeStateAsync(
                 affectedArticleIds,
-                affectedCaseIds);
+                caseIdsToSynchronize);
 
             await _context.SaveChangesAsync();
 
@@ -979,7 +1095,25 @@ public class DonneeService : IDonneeService
                     exceededCaseIds.Contains(
                         candidate.Case.CaseId));
 
-            await transaction.CommitAsync();
+            foreach (var movement in insertedMovements.Take(20))
+            {
+                var preview = await GetByIdAsync(movement.DonneeId);
+                if (preview != null)
+                    report.ApercuInserts.Add(preview);
+            }
+
+            if (dryRun)
+            {
+                // Simulation : tout le travail de l'import réel a été exécuté
+                // — contrôles de stock, capacités, conversions Legacy — puis
+                // annulé. Le rapport est donc exact, et la base intacte.
+                await transaction.RollbackAsync();
+                _context.ChangeTracker.Clear();
+            }
+            else
+            {
+                await transaction.CommitAsync();
+            }
 
             report.LignesReellementInserees =
                 candidates.Count -
@@ -994,16 +1128,168 @@ public class DonneeService : IDonneeService
             throw;
         }
 
-        foreach (var movement in insertedMovements.Take(20))
-        {
-            var preview =
-                await GetByIdAsync(movement.DonneeId);
+        return report;
+    }
 
-            if (preview != null)
-                report.ApercuInserts.Add(preview);
+    /// <summary>
+    /// Purge autonome : vide les données mensuelles et les Articles, sans
+    /// fichier ni réécriture. Magasins, Rayons, Zones, Cases et comptes
+    /// utilisateurs survivent — seules leurs données de stock disparaissent.
+    /// </summary>
+    public async Task<PurgeResultDto> PurgeAllAsync()
+    {
+        await using var transaction =
+            await _context.Database.BeginTransactionAsync();
+
+        var (deletedMovements, deletedArticles) =
+            await DeleteAllMovementsAndArticlesAsync();
+
+        // Sans mouvements, chaque Case est vide : son Statut doit le refléter,
+        // sinon la carte et les alertes continuent d'afficher un remplissage
+        // calculé sur des données qui n'existent plus.
+        var caseIds = await _context.Cases
+            .Select(c => c.CaseId)
+            .ToListAsync();
+
+        await SynchronizeStateAsync([], caseIds);
+        await _context.SaveChangesAsync();
+
+        await transaction.CommitAsync();
+
+        return new PurgeResultDto
+        {
+            DonneesSupprimees = deletedMovements,
+            ArticlesSupprimes = deletedArticles
+        };
+    }
+
+    /// <summary>
+    /// Supprime tous les mouvements puis tous les Articles, et renvoie ce qui
+    /// a été retiré. N'ouvre pas de transaction : l'appelant décide de la
+    /// portée, ce qui permet à l'import « remplacer » de purger et réécrire
+    /// dans le même tout-ou-rien.
+    /// </summary>
+    private async Task<(int Movements, int Articles)>
+        DeleteAllMovementsAndArticlesAsync()
+    {
+        var movements = await _context.Donnees.ToListAsync();
+        var deletedMovements = movements.Count;
+        _context.Donnees.RemoveRange(movements);
+
+        // Donnee.ArticleId est en ClientSetNull : les mouvements doivent avoir
+        // quitté la base avant que les Articles ne partent, sinon EF refuse.
+        await _context.SaveChangesAsync();
+
+        var obsoleteArticles = await _context.Articles
+            .Include(a => a.Cases)
+            .ToListAsync();
+
+        var deletedArticles = obsoleteArticles.Count;
+
+        foreach (var article in obsoleteArticles)
+            article.Cases.Clear();
+
+        _context.Articles.RemoveRange(obsoleteArticles);
+        await _context.SaveChangesAsync();
+
+        return (deletedMovements, deletedArticles);
+    }
+
+    /// <summary>
+    /// Mode « remplacer » : purge tous les mouvements puis tous les Articles.
+    /// Les Articles sont ensuite recréés à partir du fichier par
+    /// <see cref="CreateMissingArticlesAsync"/>, qui sert les deux modes.
+    /// Magasins, Rayons, Zones et Cases sont conservés — le fichier ne porte
+    /// que des libellés d'emplacement, ni capacités ni coordonnées, et serait
+    /// donc incapable de les reconstruire.
+    /// Appelée à l'intérieur de la transaction d'import : une simulation la
+    /// traverse comme un import réel, puis annule tout.
+    /// </summary>
+    private async Task ReplaceReferenceDataAsync(
+        CsvUploadResultDto report)
+    {
+        report.Remplacement = true;
+
+        var (deletedMovements, deletedArticles) =
+            await DeleteAllMovementsAndArticlesAsync();
+
+        report.DonneesSupprimees = deletedMovements;
+        report.ArticlesSupprimes = deletedArticles;
+    }
+
+    /// <summary>
+    /// Crée les Articles que le fichier référence et que la base ne connaît
+    /// pas encore, à partir des couples (code, nom) du CSV. Après un
+    /// « remplacer » la table est vide : tous les Articles du fichier y sont
+    /// donc recréés. Chaque création est journalisée dans les corrections
+    /// pour rester visible dans l'aperçu avant confirmation.
+    /// </summary>
+    private async Task CreateMissingArticlesAsync(
+        IReadOnlyCollection<RawCsvRow> rawRows,
+        CsvUploadResultDto report)
+    {
+        var existingCodes = await _context.Articles
+            .Select(a => a.CodeArticle)
+            .ToListAsync();
+
+        var knownCodes = existingCodes
+            .Select(CsvDataCleaner.NormalizeCode)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        // Le premier nom rencontré pour un code fait foi. Les lignes qui le
+        // contredisent plus bas sont rejetées par le contrôle de nom habituel
+        // et apparaissent donc dans le rapport, au lieu d'écraser en silence.
+        var created = new Dictionary<string, Article>(
+            StringComparer.OrdinalIgnoreCase);
+
+        foreach (var rawRow in rawRows)
+        {
+            var code = CsvDataCleaner.RepairArticleCode(
+                rawRow.Source.CodeArticle,
+                out _);
+
+            if (!CsvDataCleaner.IsValidArticleCode(code))
+                continue;
+
+            var key = CsvDataCleaner.NormalizeCode(code);
+
+            if (knownCodes.Contains(key) || created.ContainsKey(key))
+                continue;
+
+            var name = CsvDataCleaner.CleanText(
+                rawRow.Source.NomArticle);
+
+            // Sans nom, l'Article ne peut pas être créé : la ligne sera
+            // rejetée plus bas, avec la raison exacte.
+            if (string.IsNullOrWhiteSpace(name))
+                continue;
+
+            var article = new Article
+            {
+                CodeArticle = code,
+                NomArticle = name,
+                Actif = true
+            };
+
+            created[key] = article;
+            _context.Articles.Add(article);
+
+            AddCorrection(
+                report,
+                rawRow.Line,
+                code,
+                "codeArticle",
+                rawRow.Source.CodeArticle,
+                code,
+                $"Article {code} inexistant : créé automatiquement " +
+                $"sous le nom « {name} ».");
         }
 
-        return report;
+        if (created.Count == 0)
+            return;
+
+        await _context.SaveChangesAsync();
+        report.NouveauxArticlesCrees = created.Count;
     }
 
     private IQueryable<Donnee> MovementQuery()
@@ -1202,13 +1488,19 @@ public class DonneeService : IDonneeService
         ReconcileLegacyMovements(
             Dictionary<ImportKey, ImportCandidate> candidates,
             IReadOnlyCollection<Donnee> legacyMovements,
+            IReadOnlyDictionary<ImportKey, Donnee> existingByKey,
             CsvUploadResultDto report)
     {
+        // Plusieurs lignes Legacy peuvent partager (Article, mois) dès que
+        // deux Cases ont été supprimées : on retient la plus ancienne plutôt
+        // que de laisser ToDictionary lever une exception.
         var legacyByArticleMonth = legacyMovements
+            .GroupBy(movement => (
+                movement.ArticleId,
+                movement.Mois))
             .ToDictionary(
-                movement => (
-                    movement.ArticleId,
-                    movement.Mois));
+                group => group.Key,
+                group => group.OrderBy(m => m.DonneeId).First());
 
         var conversionKeys =
             new Dictionary<ImportKey, int>();
@@ -1233,6 +1525,20 @@ public class DonneeService : IDonneeService
                     articleMonth,
                     out var legacy))
             {
+                continue;
+            }
+
+            // Le créneau (Article, Case, mois) est déjà occupé par un
+            // mouvement réel : y rattacher la ligne Legacy violerait l'index
+            // unique UQ_Donnees_Article_Case_Mois. On laisse donc la ligne
+            // Legacy où elle est — le mouvement existant sera simplement mis
+            // à jour par le chemin habituel.
+            if (existingByKey.ContainsKey(first.Key))
+            {
+                report.Warnings.Add(
+                    $"{first.CodeArticle} ({first.Key.Month:yyyy-MM}) : un " +
+                    "mouvement existe déjà pour cette Case, le mouvement " +
+                    "Legacy du même mois a été laissé tel quel.");
                 continue;
             }
 
@@ -1485,13 +1791,15 @@ public class DonneeService : IDonneeService
     }
 
     private static CsvReader CreateReader(
-        TextReader reader)
+        TextReader reader,
+        char delimiter = ',')
     {
         return new CsvReader(
             reader,
             new CsvConfiguration(
                 CultureInfo.InvariantCulture)
             {
+                Delimiter = delimiter.ToString(),
                 HasHeaderRecord = true,
                 TrimOptions = TrimOptions.Trim,
                 IgnoreBlankLines = true,
@@ -1510,6 +1818,33 @@ public class DonneeService : IDonneeService
                    headers.Contains(
                        required,
                        StringComparer.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// Journalise une correction automatique. Ne fait rien si la valeur n'a
+    /// pas bougé : seules les transformations réelles sont remontées.
+    /// </summary>
+    private static void AddCorrection(
+        CsvUploadResultDto report,
+        int line,
+        string? code,
+        string field,
+        string? original,
+        string? corrected,
+        string? reason)
+    {
+        if (reason is null) return;
+
+        report.Corrections.Add(new CsvCorrectionDto
+        {
+            NumeroLigne = line,
+            CodeArticle = code,
+            Champ = field,
+            ValeurOriginale = original,
+            ValeurCorrigee = corrected,
+            Raison = reason,
+        });
+        report.LignesCorrigees++;
     }
 
     private static void AddInvalid(

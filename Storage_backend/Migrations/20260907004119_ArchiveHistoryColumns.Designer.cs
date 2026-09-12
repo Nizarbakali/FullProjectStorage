@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StudentApi.Data;
 
@@ -11,9 +12,11 @@ using StudentApi.Data;
 namespace StudentApi.Migrations
 {
     [DbContext(typeof(StorageDbContext))]
-    partial class StorageDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260907004119_ArchiveHistoryColumns")]
+    partial class ArchiveHistoryColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -120,7 +123,7 @@ namespace StudentApi.Migrations
                     b.HasIndex(new[] { "CodeArticle" }, "UQ_Articles_CodeArticle")
                         .IsUnique();
 
-                    b.ToTable("Articles", (string)null);
+                    b.ToTable("Articles");
                 });
 
             modelBuilder.Entity("StudentApi.Models.Entities.Case", b =>
@@ -160,7 +163,7 @@ namespace StudentApi.Migrations
                     b.HasIndex(new[] { "ZoneId", "CodeCase" }, "UQ_Cases_Zone_Code")
                         .IsUnique();
 
-                    b.ToTable("Cases", (string)null);
+                    b.ToTable("Cases");
                 });
 
             modelBuilder.Entity("StudentApi.Models.Entities.Donnee", b =>
@@ -214,7 +217,7 @@ namespace StudentApi.Migrations
                         .IsUnique()
                         .HasFilter("[CaseId] IS NULL");
 
-                    b.ToTable("Donnees", (string)null);
+                    b.ToTable("Donnees");
                 });
 
             modelBuilder.Entity("StudentApi.Models.Entities.Magasin", b =>
@@ -263,7 +266,7 @@ namespace StudentApi.Migrations
                     b.HasIndex(new[] { "CodeMagasin" }, "UQ_Magasins_CodeMagasin")
                         .IsUnique();
 
-                    b.ToTable("Magasins", (string)null);
+                    b.ToTable("Magasins");
                 });
 
             modelBuilder.Entity("StudentApi.Models.Entities.Rayon", b =>
@@ -298,7 +301,7 @@ namespace StudentApi.Migrations
                     b.HasIndex(new[] { "MagasinId", "CodeRayon" }, "UQ_Rayons_Magasin_Code")
                         .IsUnique();
 
-                    b.ToTable("Rayons", (string)null);
+                    b.ToTable("Rayons");
                 });
 
             modelBuilder.Entity("StudentApi.Models.Entities.Zone", b =>
@@ -332,7 +335,7 @@ namespace StudentApi.Migrations
                     b.HasIndex(new[] { "RayonId", "CodeZone" }, "UQ_Zones_Rayon_Code")
                         .IsUnique();
 
-                    b.ToTable("Zones", (string)null);
+                    b.ToTable("Zones");
                 });
 
             modelBuilder.Entity("ArticleCases", b =>
