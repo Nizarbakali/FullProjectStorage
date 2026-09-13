@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 960" width="1180" height="960"
+     font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <title>Diagramme de cas d'utilisation — Application de gestion de stock GMD Metal</title>
+  <desc>Le Visiteur s'inscrit et se connecte. L'Utilisateur consulte la heatmap, les graphiques, la carte et lance des previsions. L'Administrateur herite de l'Utilisateur et gere en plus l'import CSV, la structure de l'entrepot, les articles et les utilisateurs. Le Moteur Python et Nominatim sont des acteurs secondaires.</desc>
+
+  <defs>
+    <marker id="dep-arrow" viewBox="0 0 10 10" refX="9" refY="5"
+            markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10" fill="none" stroke="#C25D07" stroke-width="1.6"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1180" height="960" fill="#FFFFFF"/>
+
+  <!-- Frontiere du systeme -->
+  <rect x="300" y="40" width="685" height="860" rx="14" fill="none" stroke="#BFC7CE" stroke-width="1.5"/>
+  <text x="642" y="76" text-anchor="middle" font-size="13" letter-spacing="1.3" fill="#75818B">APPLICATION DE GESTION DE STOCK</text>
+
+  <!-- Cas d'utilisation : Visiteur -->
+  <ellipse cx="520" cy="125" rx="145" ry="30" fill="#F7F9FA" stroke="#2C6E8F" stroke-width="1.4"/>
+  <text x="520" y="130" text-anchor="middle" font-size="13" fill="#1B2127">S'inscrire</text>
+  <ellipse cx="520" cy="195" rx="145" ry="30" fill="#F7F9FA" stroke="#2C6E8F" stroke-width="1.4"/>
+  <text x="520" y="200" text-anchor="middle" font-size="13" fill="#1B2127">Se connecter</text>
+
+  <!-- Cas d'utilisation : Utilisateur -->
+  <ellipse cx="520" cy="295" rx="145" ry="30" fill="#F7F9FA" stroke="#2C6E8F" stroke-width="1.4"/>
+  <text x="520" y="300" text-anchor="middle" font-size="13" fill="#1B2127">Consulter la heatmap d'occupation</text>
+  <ellipse cx="520" cy="365" rx="145" ry="30" fill="#F7F9FA" stroke="#2C6E8F" stroke-width="1.4"/>
+  <text x="520" y="370" text-anchor="middle" font-size="13" fill="#1B2127">Consulter les graphiques de stock</text>
+  <ellipse cx="520" cy="435" rx="145" ry="30" fill="#F7F9FA" stroke="#2C6E8F" stroke-width="1.4"/>
+  <text x="520" y="440" text-anchor="middle" font-size="13" fill="#1B2127">Consulter la carte des magasins</text>
+  <ellipse cx="520" cy="505" rx="145" ry="30" fill="#F7F9FA" stroke="#2C6E8F" stroke-width="1.4"/>
+  <text x="520" y="510" text-anchor="middle" font-size="13" fill="#1B2127">Prévoir la demande d'un article</text>
+
+  <!-- Cas d'utilisation : Administrateur -->
+  <ellipse cx="520" cy="610" rx="145" ry="30" fill="#FBEBD6" stroke="#C25D07" stroke-width="1.4"/>
+  <text x="520" y="615" text-anchor="middle" font-size="13" fill="#1B2127">Importer un fichier CSV</text>
+  <ellipse cx="520" cy="710" rx="145" ry="30" fill="#FBEBD6" stroke="#C25D07" stroke-width="1.4"/>
+  <text x="520" y="715" text-anchor="middle" font-size="13" fill="#1B2127">Gérer la structure de l'entrepôt</text>
+  <ellipse cx="520" cy="780" rx="145" ry="30" fill="#FBEBD6" stroke="#C25D07" stroke-width="1.4"/>
+  <text x="520" y="785" text-anchor="middle" font-size="13" fill="#1B2127">Gérer les articles et les seuils</text>
+  <ellipse cx="520" cy="850" rx="145" ry="30" fill="#FBEBD6" stroke="#C25D07" stroke-width="1.4"/>
+  <text x="520" y="855" text-anchor="middle" font-size="13" fill="#1B2127">Gérer les utilisateurs</text>
+
+  <!-- Cas satellites -->
+  <ellipse cx="850" cy="555" rx="122" ry="30" fill="#F7F9FA" stroke="#BFC7CE" stroke-width="1.4"/>
+  <text x="850" y="550" text-anchor="middle" font-size="13" fill="#1B2127">Aperçu avant import</text>
+  <text x="850" y="567" text-anchor="middle" font-size="13" fill="#1B2127">(dry-run)</text>
+  <ellipse cx="850" cy="660" rx="122" ry="30" fill="#F7F9FA" stroke="#BFC7CE" stroke-width="1.4"/>
+  <text x="850" y="655" text-anchor="middle" font-size="13" fill="#1B2127">Nettoyer et valider</text>
+  <text x="850" y="672" text-anchor="middle" font-size="13" fill="#1B2127">les données</text>
+
+  <!-- Acteur : Visiteur -->
+  <circle cx="170" cy="130" r="13" fill="none" stroke="#1B2127" stroke-width="1.7"/>
+  <line x1="170" y1="143" x2="170" y2="173" stroke="#1B2127" stroke-width="1.7" stroke-linecap="round"/>
+  <line x1="151" y1="154" x2="189" y2="154" stroke="#1B2127" stroke-width="1.7" stroke-linecap="round"/>
+  <line x1="170" y1="173" x2="155" y2="198" stroke="#1B2127" stroke-width="1.7" stroke-linecap="round"/>
+  <line x1="170" y1="173" x2="185" y2="198" stroke="#1B2127" stroke-width="1.7" stroke-linecap="round"/>
+  <text x="170" y="218" text-anchor="middle" font-size="13.5" font-weight="600" fill="#1B2127">Visiteur</text>
+
+  <!-- Acteur : Utilisateur -->
+  <circle cx="170" cy="335" r="13" fill="none" stroke="#1B2127" stroke-width="1.7"/>
+  <line x1="170" y1="348" x2="170" y2="378" stroke="#1B2127" stroke-width="1.7" stroke-linecap="round"/>
+  <line x1="151" y1="359" x2="189" y2="359" stroke="#1B2127" stroke-width="1.7" stroke-linecap="round"/>
+  <line x1="170" y1="378" x2="155" y2="403" stroke="#1B2127" stroke-width="1.7" stroke-linecap="round"/>
+  <line x1="170" y1="378" x2="185" y2="403" stroke="#1B2127" stroke-width="1.7" stroke-linecap="round"/>
+  <text x="170" y="423" text-anchor="middle" font-size="13.5" font-weight="600" fill="#1B2127">Utilisateur</text>
+
+  <!-- Acteur : Administrateur -->
+  <circle cx="170" cy="700" r="13" fill="none" stroke="#1B2127" stroke-width="1.7"/>
+  <line x1="170" y1="713" x2="170" y2="743" stroke="#1B2127" stroke-width="1.7" stroke-linecap="round"/>
+  <line x1="151" y1="724" x2="189" y2="724" stroke="#1B2127" stroke-width="1.7" stroke-linecap="round"/>
+  <line x1="170" y1="743" x2="155" y2="768" stroke="#1B2127" stroke-width="1.7" stroke-linecap="round"/>
+  <line x1="170" y1="743" x2="185" y2="768" stroke="#1B2127" stroke-width="1.7" stroke-linecap="round"/>
+  <text x="170" y="788" text-anchor="middle" font-size="13.5" font-weight="600" fill="#1B2127">Administrateur</text>
+
+  <!-- Generalisation -->
+  <line x1="170" y1="684" x2="170" y2="449" stroke="#75818B" stroke-width="1.4"/>
+  <polygon points="170,437 163,451 177,451" fill="#FFFFFF" stroke="#75818B" stroke-width="1.4"/>
+  <text x="180" y="565" text-anchor="start" font-size="11" font-style="italic" fill="#75818B">hérite de</text>
+
+  <!-- Acteurs secondaires -->
+  <rect x="1010" y="392" width="130" height="56" rx="6" fill="#E3EDF2" stroke="#2C6E8F" stroke-width="1.4"/>
+  <text x="1075" y="414" text-anchor="middle" font-size="10.5" font-style="italic" fill="#2C6E8F">«système»</text>
+  <text x="1075" y="433" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1B2127">Nominatim / OSM</text>
+  <rect x="1010" y="482" width="130" height="56" rx="6" fill="#E3EDF2" stroke="#2C6E8F" stroke-width="1.4"/>
+  <text x="1075" y="504" text-anchor="middle" font-size="10.5" font-style="italic" fill="#2C6E8F">«système»</text>
+  <text x="1075" y="523" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1B2127">Moteur Python</text>
+
+  <!-- Associations : Visiteur -->
+  <line x1="192" y1="155" x2="375" y2="125" stroke="#8A949C" stroke-width="1.3"/>
+  <line x1="192" y1="155" x2="375" y2="195" stroke="#8A949C" stroke-width="1.3"/>
+  <!-- Associations : Utilisateur -->
+  <line x1="192" y1="360" x2="375" y2="295" stroke="#8A949C" stroke-width="1.3"/>
+  <line x1="192" y1="360" x2="375" y2="365" stroke="#8A949C" stroke-width="1.3"/>
+  <line x1="192" y1="360" x2="375" y2="435" stroke="#8A949C" stroke-width="1.3"/>
+  <line x1="192" y1="360" x2="375" y2="505" stroke="#8A949C" stroke-width="1.3"/>
+  <!-- Associations : Administrateur -->
+  <line x1="192" y1="725" x2="375" y2="610" stroke="#8A949C" stroke-width="1.3"/>
+  <line x1="192" y1="725" x2="375" y2="710" stroke="#8A949C" stroke-width="1.3"/>
+  <line x1="192" y1="725" x2="375" y2="780" stroke="#8A949C" stroke-width="1.3"/>
+  <line x1="192" y1="725" x2="375" y2="850" stroke="#8A949C" stroke-width="1.3"/>
+  <!-- Associations vers les systemes externes -->
+  <line x1="665" y1="435" x2="1010" y2="420" stroke="#8A949C" stroke-width="1.3"/>
+  <line x1="665" y1="505" x2="1010" y2="510" stroke="#8A949C" stroke-width="1.3"/>
+  <line x1="972" y1="660" x2="1040" y2="538" stroke="#8A949C" stroke-width="1.3"/>
+
+  <!-- extend -->
+  <line x1="728" y1="566" x2="660" y2="594" stroke="#C25D07" stroke-width="1.3" stroke-dasharray="6 4" marker-end="url(#dep-arrow)"/>
+  <text x="700" y="560" text-anchor="middle" font-size="11" font-style="italic" fill="#8A4204">«extend»</text>
+  <!-- include -->
+  <line x1="658" y1="626" x2="726" y2="650" stroke="#C25D07" stroke-width="1.3" stroke-dasharray="6 4" marker-end="url(#dep-arrow)"/>
+  <text x="688" y="663" text-anchor="middle" font-size="11" font-style="italic" fill="#8A4204">«include»</text>
+</svg>
