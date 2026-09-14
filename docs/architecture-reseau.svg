@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1140 620" width="1140" height="620"
+     font-family="Segoe UI, Helvetica, Arial, sans-serif" role="img"
+           aria-label="Architecture réseau : le navigateur exécutant l'application React sur le port 5173 envoie des requêtes HTTP REST à l'API ASP.NET Core sur les ports 5130 et 7197, qui interroge SQL Server via Entity Framework Core. En complément, l'API lance le script Python forecast.py en processus enfant avec échange JSON par stdin et stdout, et appelle en HTTPS le service externe Nominatim OpenStreetMap pour le géocodage.">
+        <defs>
+          <marker id="ar-main" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#4A555F"/>
+          </marker>
+          <marker id="ar-sec" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#8A949C"/>
+          </marker>
+        </defs>
+
+        <rect x="0" y="0" width="1140" height="620" fill="#FFFFFF"/>
+
+        <!-- ════ Boîte A : Navigateur ════ -->
+        <rect x="40" y="120" width="240" height="140" rx="9" fill="#FFFFFF" stroke="#BFC7CE" stroke-width="1.5"/>
+        <path d="M 40 129 a 9 9 0 0 1 9 -9 h 222 a 9 9 0 0 1 9 9 v 3 h -240 z" fill="#2C6E8F"/>
+        <text x="160" y="162" text-anchor="middle" font-size="15" font-weight="600" fill="#1B2127">Navigateur web</text>
+        <text x="160" y="186" text-anchor="middle" font-size="12.5" fill="#4A555F">Application React (SPA)</text>
+        <text x="160" y="205" text-anchor="middle" font-size="12.5" fill="#4A555F">Serveur de développement Vite</text>
+        <rect x="78" y="217" width="164" height="24" rx="5" fill="#E3EDF2" stroke="#2C6E8F" stroke-width="1"/>
+        <text x="160" y="233" text-anchor="middle" font-size="12" font-family="Consolas, Courier New, monospace" fill="#1B4A63">localhost:5173</text>
+
+        <!-- ════ Boîte B : API ════ -->
+        <rect x="440" y="120" width="260" height="140" rx="9" fill="#FFFFFF" stroke="#C25D07" stroke-width="2"/>
+        <path d="M 440 129 a 9 9 0 0 1 9 -9 h 242 a 9 9 0 0 1 9 9 v 3 h -260 z" fill="#C25D07"/>
+        <text x="570" y="162" text-anchor="middle" font-size="15" font-weight="600" fill="#1B2127">API ASP.NET Core</text>
+        <text x="570" y="186" text-anchor="middle" font-size="12.5" fill="#4A555F">Contrôleurs REST · JWT · CORS</text>
+        <text x="570" y="205" text-anchor="middle" font-size="12.5" fill="#4A555F">Couche métier (Services)</text>
+        <rect x="463" y="217" width="214" height="24" rx="5" fill="#FBEBD6" stroke="#C25D07" stroke-width="1"/>
+        <text x="570" y="233" text-anchor="middle" font-size="12" font-family="Consolas, Courier New, monospace" fill="#8A4204">localhost:5130 / 7197</text>
+
+        <!-- ════ Boîte C : SQL Server ════ -->
+        <rect x="860" y="120" width="240" height="140" rx="9" fill="#FFFFFF" stroke="#BFC7CE" stroke-width="1.5"/>
+        <path d="M 860 129 a 9 9 0 0 1 9 -9 h 222 a 9 9 0 0 1 9 9 v 3 h -240 z" fill="#3A4A56"/>
+        <text x="980" y="162" text-anchor="middle" font-size="15" font-weight="600" fill="#1B2127">SQL Server</text>
+        <text x="980" y="186" text-anchor="middle" font-size="12.5" fill="#4A555F">Base de données relationnelle</text>
+        <text x="980" y="205" text-anchor="middle" font-size="12.5" fill="#4A555F">Magasins · Cases · Articles</text>
+        <rect x="898" y="217" width="164" height="24" rx="5" fill="#EDEFF1" stroke="#8A949C" stroke-width="1"/>
+        <text x="980" y="233" text-anchor="middle" font-size="12" font-family="Consolas, Courier New, monospace" fill="#3A4A56">Entity Framework</text>
+
+        <!-- ════ Boîte D : Python ════ -->
+        <rect x="320" y="400" width="240" height="120" rx="9" fill="#FAFBFC" stroke="#BFC7CE" stroke-width="1.5"/>
+        <path d="M 320 409 a 9 9 0 0 1 9 -9 h 222 a 9 9 0 0 1 9 9 v 3 h -240 z" fill="#8A949C"/>
+        <text x="440" y="440" text-anchor="middle" font-size="14.5" font-weight="600" fill="#1B2127">Script Python</text>
+        <text x="440" y="463" text-anchor="middle" font-size="12.5" font-family="Consolas, Courier New, monospace" fill="#4A555F">forecast.py</text>
+        <text x="440" y="485" text-anchor="middle" font-size="12.5" fill="#4A555F">Prévision de la demande</text>
+
+        <!-- ════ Boîte E : Nominatim (externe, bordure pointillée) ════ -->
+        <rect x="700" y="400" width="270" height="120" rx="9" fill="#FAFBFC" stroke="#8A949C" stroke-width="1.5" stroke-dasharray="7 4"/>
+        <text x="835" y="432" text-anchor="middle" font-size="14.5" font-weight="600" fill="#1B2127">Nominatim / OpenStreetMap</text>
+        <text x="835" y="454" text-anchor="middle" font-size="12" font-style="italic" fill="#75818B">Service externe — Internet</text>
+        <text x="835" y="478" text-anchor="middle" font-size="11.5" font-family="Consolas, Courier New, monospace" fill="#4A555F">nominatim.openstreetmap.org</text>
+        <text x="835" y="498" text-anchor="middle" font-size="12.5" fill="#4A555F">Géocodage des adresses</text>
+
+        <!-- ════ Flux principal : Navigateur ↔ API ════ -->
+        <text x="358" y="152" text-anchor="middle" font-size="11.5" fill="#1B2127">Requêtes HTTP / REST</text>
+        <text x="358" y="167" text-anchor="middle" font-size="11.5" fill="#75818B">JSON + jeton JWT</text>
+        <line x1="282" y1="180" x2="432" y2="180" stroke="#4A555F" stroke-width="1.8" marker-end="url(#ar-main)"/>
+        <line x1="438" y1="216" x2="288" y2="216" stroke="#4A555F" stroke-width="1.8" marker-end="url(#ar-main)"/>
+        <text x="360" y="236" text-anchor="middle" font-size="11.5" fill="#75818B">Réponses JSON</text>
+
+        <!-- ════ Flux principal : API ↔ SQL Server ════ -->
+        <text x="780" y="152" text-anchor="middle" font-size="11.5" fill="#1B2127">Requêtes SQL</text>
+        <text x="780" y="167" text-anchor="middle" font-size="11.5" fill="#75818B">via EF Core (ORM)</text>
+        <line x1="702" y1="180" x2="852" y2="180" stroke="#4A555F" stroke-width="1.8" marker-end="url(#ar-main)"/>
+        <line x1="858" y1="216" x2="708" y2="216" stroke="#4A555F" stroke-width="1.8" marker-end="url(#ar-main)"/>
+        <text x="782" y="236" text-anchor="middle" font-size="11.5" fill="#75818B">Lignes de données</text>
+
+        <!-- ════ Complément 1 : API → Python ════ -->
+        <polyline points="500,262 500,340 440,340 440,394" fill="none" stroke="#8A949C" stroke-width="1.5" marker-end="url(#ar-sec)"/>
+        <text x="486" y="318" text-anchor="end" font-size="11.5" fill="#1B2127">Processus enfant</text>
+        <text x="486" y="333" text-anchor="end" font-size="11.5" fill="#75818B">JSON via stdin / stdout</text>
+
+        <!-- ════ Complément 2 : API → Nominatim ════ -->
+        <polyline points="640,262 640,340 835,340 835,394" fill="none" stroke="#8A949C" stroke-width="1.5" marker-end="url(#ar-sec)"/>
+        <text x="654" y="318" text-anchor="start" font-size="11.5" fill="#1B2127">Requête HTTPS</text>
+        <text x="654" y="333" text-anchor="start" font-size="11.5" fill="#75818B">GET /search (géocodage)</text>
+
+        <!-- ════ Légende ════ -->
+        <line x1="40" y1="565" x2="74" y2="565" stroke="#4A555F" stroke-width="1.8"/>
+        <text x="84" y="569" font-size="11.5" fill="#4A555F">Flux principal</text>
+        <line x1="200" y1="565" x2="234" y2="565" stroke="#8A949C" stroke-width="1.5"/>
+        <text x="244" y="569" font-size="11.5" fill="#4A555F">Communications complémentaires</text>
+        <rect x="470" y="558" width="26" height="14" rx="3" fill="#FAFBFC" stroke="#8A949C" stroke-width="1.5" stroke-dasharray="5 3"/>
+        <text x="506" y="569" font-size="11.5" fill="#4A555F">Service externe (hors réseau local)</text>
+      </svg>
