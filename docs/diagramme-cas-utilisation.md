@@ -16,11 +16,8 @@ et reflétée côté interface par le filtrage des onglets.
 
 | Acteur | Cas d'utilisation | Contrôle d'accès |
 |--------|-------------------|------------------|
-| **Visiteur** | S'inscrire · Se connecter | `AllowAnonymous` |
-| **Utilisateur** | Consulter la heatmap · les graphiques · la carte des magasins · Prévoir la demande d'un article | `[Authorize]` |
+| **Utilisateur** | S'inscrire · Se connecter · Consulter la heatmap · les graphiques · la carte des magasins · Prévoir la demande d'un article | `[Authorize]` |
 | **Administrateur** | Tout ce qui précède, plus : importer un fichier CSV · gérer la structure (magasins, rayons, zones, cases) · gérer les articles et les seuils · gérer les utilisateurs | `[Authorize(Roles = "admin")]` |
-| **Moteur Python** | Nettoie et valide les lignes CSV · calcule les prévisions | Acteur secondaire |
-| **Nominatim / OSM** | Géocode les adresses des magasins | Acteur secondaire |
 
 ## Relations UML employées
 
@@ -36,4 +33,4 @@ et reflétée côté interface par le filtrage des onglets.
   (`ArticleController`, `CaseController`, `DonneeController`, `MagasinController`,
   `RayonController`, `UsersController`, `ZoneController`, `ForecastController`).
 - Filtrage `ADMIN_TABS` / `USER_TABS` dans `frontend/src/App.jsx`.
-- Inscription et connexion anonymes dans `AuthController`.
+- Inscription et connexion dans `AuthController`.
