@@ -1,39 +1,50 @@
 # Calcul de la prévision — GMD Metal
 
-Les cinq étapes du calcul, énoncées en mots plutôt qu'en notation mathématique.
-Implémentation : `Storage_backend/Python/forecast.py`, fonction
-`forecast_series()`.
+Les cinq étapes du calcul, de la moyenne mensuelle historique jusqu'aux douze
+valeurs prévisionnelles, telles qu'implémentées dans
+`Storage_backend/Python/forecast.py` (fonction `forecast_series()`).
 
-![Étapes du calcul de la prévision](./formules-prevision.svg)
+![Formules de calcul de la prévision](./formules-prevision.svg)
 
-*Figure — Les cinq étapes du calcul de la prévision.*
+*Figure — Enchaînement des formules de calcul de la prévision.*
+
+## Notations
+
+| Symbole | Signification |
+|---------|---------------|
+| `q(y,m)` | Quantité relevée pour l'année `y` et le mois `m` |
+| `B(m)` | Moyenne de référence du mois `m` |
+| `n(m)` | Nombre d'années où le mois `m` est renseigné |
+| `T(i)` | Total de l'année d'indice `i` |
+| `x(i)` | Indice de l'année : 0, 1, …, n − 1 |
+| `a` | Pente de tendance (moindres carrés) |
+| `k` | Facteur de mise à l'échelle |
+| `P(m)` | Valeur prévisionnelle du mois `m` |
 
 ## Les cinq étapes
 
-1. **Moyenne de chaque mois**
-   `Moyenne du mois = total de ce mois sur toutes les années ÷ nombre d'années disponibles`
-2. **Total de chaque année**
-   `Total d'une année = somme de ses 12 mois`
-3. **Pente de tendance**
-   `Pente = progression moyenne du total, par an`
-   Obtenue par régression linéaire sur les totaux annuels — voir
-   [l'exemple détaillé](./regression-lineaire.md).
-4. **Total prévu pour l'année suivante**
-   `Total prévu = dernier total connu + pente`
-5. **Prévision de chaque mois**
-   `Prévision du mois = moyenne du mois × (total prévu ÷ somme des moyennes)`
+1. **Moyenne mensuelle de référence** — `B(m) = ( Σ_y q(y,m) ) / n(m)`
+   Moyenne des quantités du mois `m` sur les années disponibles.
+2. **Total de chaque année** — `T(i) = Σ_{m=1..12} q(y_i, m)`
+3. **Pente de tendance** — `a = Σ (x_i − x̄)(T_i − T̄) / Σ (x_i − x̄)²`
+   Régression linéaire sur les totaux annuels. Si une seule année est
+   disponible, aucune pente n'est calculée.
+4. **Total annuel prévu** — `T_prévu = max( 0, T_n + a )`
+5. **Répartition sur les 12 mois** — `k = T_prévu / Σ B(m)` puis
+   `P(m) = arrondi( B(m) × k )`
 
-On obtient 12 valeurs, dont la somme est égale au total prévu.
+La série `P(1) … P(12)` correspond à l'année `y_n + 1`.
 
 ## Exemple chiffré
 
 | Étape | Calcul | Résultat |
 |-------|--------|----------|
-| Totaux annuels | Relevés pour 2023 puis 2024 | 1 200 puis 1 400 |
-| Pente | Progression d'une année à l'autre | + 200 par an |
-| Total prévu | 1 400 + 200 | 1 600 |
-| Somme des moyennes | (1 200 + 1 400) ÷ 2 | 1 300 |
-| Un mois | Si la moyenne de janvier vaut 100 : 100 × (1 600 ÷ 1 300) | 123 |
+| Historique | Totaux annuels 2023 puis 2024 | T₁ = 1 200 · T₂ = 1 400 |
+| Moyennes | x̄ = (0 + 1) / 2 · T̄ = (1 200 + 1 400) / 2 | x̄ = 0,5 · T̄ = 1 300 |
+| Pente | [ (−0,5)(−100) + (0,5)(100) ] / [ (−0,5)² + (0,5)² ] | a = 200 |
+| Total prévu | max( 0 , 1 400 + 200 ) | T_prévu = 1 600 |
+| Facteur | 1 600 / 1 300 | k ≈ 1,2308 |
+| Un mois | Si B(janvier) = 100 : arrondi( 100 × 1,2308 ) | P(janvier) = 123 |
 
 ## À noter
 
@@ -41,6 +52,3 @@ Le calcul est exécuté **deux fois**, indépendamment : une fois sur les quanti
 entrées (`quantiteEntrer`) et une fois sur les quantités sorties
 (`quantiteSortie`). La réponse renvoyée au frontend contient donc **deux
 séries** de douze valeurs.
-
-Deux garde-fous sont appliqués : la prévision ne peut jamais être négative, et
-si une seule année d'historique est disponible, aucune pente n'est calculée.
