@@ -1,67 +1,60 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 810" width="900" height="810"
-     font-family="Cambria, Georgia, Times New Roman, serif" role="img"
-           aria-label="Enchaînement des formules de prévision en cinq étapes : moyenne mensuelle de référence, total de chaque année, pente de tendance par moindres carrés, total annuel prévu, puis répartition proportionnelle sur les douze mois.">
-        <rect x="0" y="0" width="900" height="810" fill="#FFFFFF"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 675" width="900" height="675"
+     font-family="Segoe UI, Helvetica, Arial, sans-serif" role="img"
+           aria-label="Les cinq étapes du calcul de prévision : moyenne de chaque mois égale le total de ce mois sur toutes les années divisé par le nombre d'années ; total d'une année égale la somme de ses douze mois ; la pente est la progression moyenne du total par an, obtenue par régression linéaire ; le total prévu égale le dernier total connu plus la pente ; la prévision de chaque mois égale la moyenne du mois multipliée par le total prévu divisé par la somme des moyennes.">
+        <rect x="0" y="0" width="900" height="675" fill="#FFFFFF"/>
 
         <!-- rail -->
-        <line x1="46" y1="71"  x2="46" y2="199" stroke="#D6DCE1" stroke-width="2"/>
-        <line x1="46" y1="233" x2="46" y2="341" stroke="#D6DCE1" stroke-width="2"/>
-        <line x1="46" y1="375" x2="46" y2="523" stroke="#D6DCE1" stroke-width="2"/>
-        <line x1="46" y1="557" x2="46" y2="655" stroke="#D6DCE1" stroke-width="2"/>
+        <line x1="46" y1="71"  x2="46" y2="177" stroke="#D6DCE1" stroke-width="2"/>
+        <line x1="46" y1="211" x2="46" y2="287" stroke="#D6DCE1" stroke-width="2"/>
+        <line x1="46" y1="321" x2="46" y2="417" stroke="#D6DCE1" stroke-width="2"/>
+        <line x1="46" y1="451" x2="46" y2="527" stroke="#D6DCE1" stroke-width="2"/>
 
-        <!-- ══════ ÉTAPE 1 ══════ -->
-        <rect x="80" y="20" width="790" height="140" rx="9" fill="#FFFFFF" stroke="#D6DCE1" stroke-width="1.4"/>
+        <!-- ══ ÉTAPE 1 ══ -->
+        <rect x="80" y="20" width="790" height="120" rx="9" fill="#FFFFFF" stroke="#D6DCE1" stroke-width="1.4"/>
         <circle cx="46" cy="54" r="17" fill="#C25D07"/>
         <text x="46" y="60" text-anchor="middle" font-size="16" font-weight="700" fill="#FFFFFF">1</text>
-        <text x="110" y="50" font-size="15" font-weight="600" fill="#1B2127">Moyenne mensuelle de référence</text>
+        <text x="110" y="52" font-size="15" font-weight="600" fill="#1B2127">Moyenne de chaque mois</text>
 
-        <text x="405" y="106" text-anchor="end" font-size="19" font-style="italic" fill="#1B2127">B<tspan font-size="12" dy="5">m</tspan><tspan font-size="19" dy="-5" font-style="normal">  =</tspan></text>
-        <text x="480" y="90" text-anchor="middle" font-size="17" fill="#1B2127">∑<tspan font-size="11" dy="4">y</tspan><tspan font-size="17" dy="-4" font-style="italic" dx="4">q</tspan><tspan font-size="11" dy="4">y, m</tspan></text>
-        <line x1="415" y1="100" x2="545" y2="100" stroke="#1B2127" stroke-width="1.4"/>
-        <text x="480" y="126" text-anchor="middle" font-size="17" font-style="italic" fill="#1B2127">n<tspan font-size="11" dy="4">m</tspan></text>
-        <text x="110" y="146" font-size="12.5" fill="#75818B">Moyenne des quantités du mois <tspan font-style="italic">m</tspan> sur les années disponibles ; <tspan font-style="italic">n</tspan><tspan font-size="9.5" dy="3">m</tspan><tspan font-size="12.5" dy="-3"> est le nombre d'années renseignées.</tspan></text>
+        <text x="360" y="106" text-anchor="end" font-size="15" fill="#1B2127">Moyenne du mois   =</text>
+        <text x="545" y="90" text-anchor="middle" font-size="15" fill="#1B2127">total de ce mois sur toutes les années</text>
+        <line x1="375" y1="100" x2="715" y2="100" stroke="#1B2127" stroke-width="1.4"/>
+        <text x="545" y="122" text-anchor="middle" font-size="15" fill="#1B2127">nombre d'années disponibles</text>
 
-        <!-- ══════ ÉTAPE 2 ══════ -->
-        <rect x="80" y="182" width="790" height="120" rx="9" fill="#FFFFFF" stroke="#D6DCE1" stroke-width="1.4"/>
-        <circle cx="46" cy="216" r="17" fill="#C25D07"/>
-        <text x="46" y="222" text-anchor="middle" font-size="16" font-weight="700" fill="#FFFFFF">2</text>
-        <text x="110" y="212" font-size="15" font-weight="600" fill="#1B2127">Total de chaque année</text>
+        <!-- ══ ÉTAPE 2 ══ -->
+        <rect x="80" y="160" width="790" height="90" rx="9" fill="#FFFFFF" stroke="#D6DCE1" stroke-width="1.4"/>
+        <circle cx="46" cy="194" r="17" fill="#C25D07"/>
+        <text x="46" y="200" text-anchor="middle" font-size="16" font-weight="700" fill="#FFFFFF">2</text>
+        <text x="110" y="192" font-size="15" font-weight="600" fill="#1B2127">Total de chaque année</text>
 
-        <text x="480" y="258" text-anchor="middle" font-size="19" font-style="italic" fill="#1B2127">T<tspan font-size="12" dy="5">i</tspan><tspan font-size="19" dy="-5" font-style="normal">  =  </tspan><tspan font-size="17" font-style="normal">∑</tspan><tspan font-size="11" dy="4" font-style="normal">m = 1 … 12</tspan><tspan font-size="19" dy="-4" dx="4">q</tspan><tspan font-size="12" dy="5">y</tspan><tspan font-size="9">i</tspan><tspan font-size="12">, m</tspan></text>
-        <text x="110" y="288" font-size="12.5" fill="#75818B">Somme des douze mois renseignés, pour chacune des n années de l'historique.</text>
+        <text x="475" y="230" text-anchor="middle" font-size="15" fill="#1B2127">Total d'une année   =   somme de ses 12 mois</text>
 
-        <!-- ══════ ÉTAPE 3 ══════ -->
-        <rect x="80" y="324" width="790" height="160" rx="9" fill="#FFFFFF" stroke="#D6DCE1" stroke-width="1.4"/>
-        <circle cx="46" cy="358" r="17" fill="#C25D07"/>
-        <text x="46" y="364" text-anchor="middle" font-size="16" font-weight="700" fill="#FFFFFF">3</text>
-        <text x="110" y="354" font-size="15" font-weight="600" fill="#1B2127">Pente de tendance (moindres carrés)</text>
+        <!-- ══ ÉTAPE 3 ══ -->
+        <rect x="80" y="270" width="790" height="110" rx="9" fill="#FFFFFF" stroke="#D6DCE1" stroke-width="1.4"/>
+        <circle cx="46" cy="304" r="17" fill="#C25D07"/>
+        <text x="46" y="310" text-anchor="middle" font-size="16" font-weight="700" fill="#FFFFFF">3</text>
+        <text x="110" y="302" font-size="15" font-weight="600" fill="#1B2127">Pente de tendance</text>
 
-        <text x="358" y="422" text-anchor="end" font-size="19" font-style="italic" fill="#1B2127">a<tspan font-size="19" font-style="normal">  =</tspan></text>
-        <text x="500" y="404" text-anchor="middle" font-size="17" fill="#1B2127">∑ ( <tspan font-style="italic">x</tspan><tspan font-size="11" dy="4">i</tspan><tspan font-size="17" dy="-4"> − </tspan><tspan font-style="italic">x̄</tspan> ) ( <tspan font-style="italic">T</tspan><tspan font-size="11" dy="4">i</tspan><tspan font-size="17" dy="-4"> − </tspan><tspan font-style="italic">T̄</tspan> )</text>
-        <line x1="370" y1="416" x2="630" y2="416" stroke="#1B2127" stroke-width="1.4"/>
-        <text x="500" y="444" text-anchor="middle" font-size="17" fill="#1B2127">∑ ( <tspan font-style="italic">x</tspan><tspan font-size="11" dy="4">i</tspan><tspan font-size="17" dy="-4"> − </tspan><tspan font-style="italic">x̄</tspan> )<tspan font-size="11" dy="-6">2</tspan></text>
-        <text x="110" y="470" font-size="12.5" fill="#75818B">Régression linéaire sur les totaux annuels, avec <tspan font-style="italic">x</tspan><tspan font-size="9.5" dy="3">i</tspan><tspan font-size="12.5" dy="-3"> = 0, 1, …, n − 1. Si n = 1, aucune pente n'est calculée.</tspan></text>
+        <text x="475" y="338" text-anchor="middle" font-size="15" fill="#1B2127">Pente   =   progression moyenne du total, par an</text>
+        <text x="475" y="362" text-anchor="middle" font-size="12.5" fill="#75818B">obtenue par régression linéaire sur les totaux annuels</text>
 
-        <!-- ══════ ÉTAPE 4 ══════ -->
-        <rect x="80" y="506" width="790" height="110" rx="9" fill="#FFFFFF" stroke="#D6DCE1" stroke-width="1.4"/>
-        <circle cx="46" cy="540" r="17" fill="#C25D07"/>
-        <text x="46" y="546" text-anchor="middle" font-size="16" font-weight="700" fill="#FFFFFF">4</text>
-        <text x="110" y="536" font-size="15" font-weight="600" fill="#1B2127">Total annuel prévu</text>
+        <!-- ══ ÉTAPE 4 ══ -->
+        <rect x="80" y="400" width="790" height="90" rx="9" fill="#FFFFFF" stroke="#D6DCE1" stroke-width="1.4"/>
+        <circle cx="46" cy="434" r="17" fill="#C25D07"/>
+        <text x="46" y="440" text-anchor="middle" font-size="16" font-weight="700" fill="#FFFFFF">4</text>
+        <text x="110" y="432" font-size="15" font-weight="600" fill="#1B2127">Total prévu pour l'année suivante</text>
 
-        <text x="480" y="578" text-anchor="middle" font-size="19" font-style="italic" fill="#1B2127">T<tspan font-size="12" dy="5">prévu</tspan><tspan font-size="19" dy="-5" font-style="normal">  =  max ( 0 ,  </tspan>T<tspan font-size="12" dy="5">n</tspan><tspan font-size="19" dy="-5" font-style="normal"> + </tspan>a<tspan font-size="19" font-style="normal"> )</tspan></text>
-        <text x="110" y="602" font-size="12.5" fill="#75818B">Le total de la dernière année connue, corrigé par la pente. Le résultat ne peut pas être négatif.</text>
+        <text x="475" y="470" text-anchor="middle" font-size="15" fill="#1B2127">Total prévu   =   dernier total connu   +   pente</text>
 
-        <!-- ══════ ÉTAPE 5 ══════ -->
-        <rect x="80" y="638" width="790" height="150" rx="9" fill="#FFFDF9" stroke="#C25D07" stroke-width="1.8"/>
-        <circle cx="46" cy="672" r="17" fill="#C25D07"/>
-        <text x="46" y="678" text-anchor="middle" font-size="16" font-weight="700" fill="#FFFFFF">5</text>
-        <text x="110" y="668" font-size="15" font-weight="600" fill="#1B2127">Répartition proportionnelle sur les 12 mois</text>
+        <!-- ══ ÉTAPE 5 ══ -->
+        <rect x="80" y="510" width="790" height="140" rx="9" fill="#FFFDF9" stroke="#C25D07" stroke-width="1.8"/>
+        <circle cx="46" cy="544" r="17" fill="#C25D07"/>
+        <text x="46" y="550" text-anchor="middle" font-size="16" font-weight="700" fill="#FFFFFF">5</text>
+        <text x="110" y="542" font-size="15" font-weight="600" fill="#1B2127">Prévision de chaque mois</text>
 
-        <text x="268" y="730" text-anchor="end" font-size="19" font-style="italic" fill="#1B2127">k<tspan font-size="19" font-style="normal">  =</tspan></text>
-        <text x="348" y="714" text-anchor="middle" font-size="17" font-style="italic" fill="#1B2127">T<tspan font-size="11" dy="4">prévu</tspan></text>
-        <line x1="282" y1="724" x2="414" y2="724" stroke="#1B2127" stroke-width="1.4"/>
-        <text x="348" y="750" text-anchor="middle" font-size="17" fill="#1B2127">∑ <tspan font-style="italic">B</tspan><tspan font-size="11" dy="4">m</tspan></text>
+        <text x="527" y="598" text-anchor="end" font-size="15" fill="#1B2127">Prévision du mois   =   moyenne du mois   ×</text>
+        <text x="650" y="582" text-anchor="middle" font-size="15" fill="#1B2127">total prévu</text>
+        <line x1="562" y1="592" x2="738" y2="592" stroke="#1B2127" stroke-width="1.4"/>
+        <text x="650" y="614" text-anchor="middle" font-size="15" fill="#1B2127">somme des moyennes</text>
 
-        <text x="660" y="730" text-anchor="middle" font-size="19" font-style="italic" fill="#1B2127">P<tspan font-size="12" dy="5">m</tspan><tspan font-size="19" dy="-5" font-style="normal">  =  arrondi ( </tspan>B<tspan font-size="12" dy="5">m</tspan><tspan font-size="19" dy="-5" font-style="normal"> × </tspan>k<tspan font-size="19" font-style="normal"> )</tspan></text>
-        <text x="110" y="774" font-size="12.5" fill="#75818B">Les douze valeurs sont mises à l'échelle pour que leur somme corresponde au total annuel prévu.</text>
+        <text x="110" y="638" font-size="12.5" fill="#75818B">On obtient 12 valeurs, dont la somme est égale au total prévu.</text>
       </svg>
